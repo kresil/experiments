@@ -18,6 +18,7 @@ kotlin {
             }
         }
     }
+
     /*iosX64()
     iosArm64()
     iosSimulatorArm64()*/
@@ -33,6 +34,9 @@ kotlin {
             dependencies {
                 implementation(libs.kotlin.test)
             }
+        }
+        val nativeMain by getting {
+            dependsOn(commonMain)
         }
     }
 }

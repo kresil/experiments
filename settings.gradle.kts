@@ -15,4 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "kresil.experiments"
-include(":library")
+include(":kmp")
