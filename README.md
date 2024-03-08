@@ -1,10 +1,10 @@
-## Experiments
+# Experiments
 
-### KMP - Kotlin Multiplatform
+## KMP - Kotlin Multiplatform
 
-Folder: [`kmp`](./kmp)
+Module: [`kmp`](./kmp)
 
-#### Testing the Architecture
+### Testing the Architecture
 
 In the [KMP template](https://github.com/Kotlin/multiplatform-library-template) provided by Kotlin,
 the example with the `fibonacci` sequence was removed
@@ -15,7 +15,7 @@ This addition follows the same principles:
 - test common functionality in `commonTest`;
 - test platform-specific functionality in each platform's test source set (`<Platform>Test`)
 
-#### Intermediate Source Sets
+### Intermediate Source Sets
 
 [Intermediate Source Sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#intermediate-source-sets)
 enable sharing code
@@ -32,10 +32,10 @@ their hierarchy can be adjusted,
 as mentioned [here](https://kotlinlang.org/docs/multiplatform-hierarchy.html#manual-configuration).
 
 > [!IMPORTANT]
-> The iOS source set was removed from the template,
-> because there is no macOS machine available for testing, as required by Apple.
+> The `iOS` source set was removed from the template,
+> because there is no `macOS` machine available for testing, as required by Apple.
 
-#### Relevant Design Choices
+### Relevant Design Choices
 
 As mentioned in the issue [KT-61573](https://youtrack.jetbrains.com/issue/KT-61573), the `expect/actual` pattern
 should only be used for `functions` and `interfaces`.
@@ -45,6 +45,6 @@ An alternative for this pattern is to use `expect fun` + `interface` in the comm
 |:-------------------------------------:|
 |               KT-61573                |
 
-#### Dependencies from NPM
+### Dependencies from NPM
 
 [Link](https://kotlinlang.org/docs/using-packages-from-npm.html)

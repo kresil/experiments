@@ -5,6 +5,6 @@
 @Suppress("EXPECT_ACTUAL_CLASSIFIERS_ARE_IN_BETA_WARNING")
 actual class TargetRandomStringGen actual constructor(private val length: Int) {
     actual fun generate(): TargetString =
-        Target.ANDROID to "platform specific string".take(length)
+        Target.NATIVE to "platform specific string".take(length)
 }
 
