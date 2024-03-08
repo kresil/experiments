@@ -18,7 +18,13 @@ kotlin {
             }
         }
     }
-
+    js {
+        useCommonJs()
+        browser {
+        }
+        nodejs {
+        }
+    }
     /*iosX64()
     iosArm64()
     iosSimulatorArm64()*/
@@ -37,6 +43,17 @@ kotlin {
         }
         val nativeMain by getting {
             dependsOn(commonMain)
+        }
+        val jsMain by getting {
+            dependencies {
+                implementation(kotlin("stdlib-js"))
+                implementation(npm("randomstring", "1.3.0"))
+            }
+        }
+        val jsTest by getting {
+            dependencies {
+                implementation(kotlin("test-js"))
+            }
         }
     }
 }

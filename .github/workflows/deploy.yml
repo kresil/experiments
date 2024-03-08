@@ -20,8 +20,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - target: publishIosArm64PublicationToSonatypeRepository
-            os: macos-latest
+          #- target: publishIosArm64PublicationToSonatypeRepository
+          #  os: macos-latest
           - target: publishAndroidReleasePublicationToSonatypeRepository
             os: ubuntu-latest
           - target: publishJvmPublicationToSonatypeRepository

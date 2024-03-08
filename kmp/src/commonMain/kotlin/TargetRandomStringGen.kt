@@ -1,10 +1,10 @@
 typealias TargetString = Pair<Target, String>
 
 /**
- * Represents the target platform.
+ * Represents a target platform.
  */
 enum class Target {
-    JVM, NATIVE, ANDROID
+    JVM, NATIVE, ANDROID, JS
 }
 
 /**

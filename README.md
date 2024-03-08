@@ -45,6 +45,8 @@ An alternative for this pattern is to use `expect fun` + `interface` in the comm
 |:-------------------------------------:|
 |               KT-61573                |
 
-### Dependencies from NPM
+### Integration with JavaScript 
 
-[Link](https://kotlinlang.org/docs/using-packages-from-npm.html)
+- [Dependencies from NPM](https://kotlinlang.org/docs/using-packages-from-npm.html)
+
+- [Accessing External JavaScript Library](https://discuss.kotlinlang.org/t/kotlin-1-3-how-to-access-external-javascript-library-from-jsmain/15778)

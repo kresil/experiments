@@ -1,7 +1,7 @@
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class LinuxTargetRandomStringGenTest {
+class NativeTargetRandomStringGenTest {
 
     @Test
     fun `test target object`() {
