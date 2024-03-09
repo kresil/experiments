@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "kresil.experiments"
 include(":kmp")
+include("ktor")
