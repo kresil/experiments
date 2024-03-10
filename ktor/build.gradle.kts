@@ -51,6 +51,7 @@ kotlin {
                 implementation("io.ktor:ktor-server-call-logging")
                 implementation("io.ktor:ktor-server-default-headers")
                 implementation("io.ktor:ktor-server-sessions")
+                implementation("io.ktor:ktor-server-status-pages")
                 implementation("ch.qos.logback:logback-classic:1.4.6")
             }
         }

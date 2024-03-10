@@ -1,14 +1,18 @@
+package application
+
 import io.ktor.websocket.*
-import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.channels.ClosedSendChannelException
 import java.util.*
-import java.util.concurrent.*
-import java.util.concurrent.atomic.*
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * This class is in charge of the chat server logic.
  * It contains handlers for events and commands to send messages to specific users on the server.
  */
 class ChatServer {
+
     /**
      * The atomic counter used to get unique usernames based on the maximum users the server had.
      */
@@ -37,7 +41,9 @@ class ChatServer {
      */
     suspend fun memberJoin(member: String, socket: WebSocketSession) {
         // Checks if this user is already registered in the server and gives him/her a temporal name if required.
-        val name = memberNames.computeIfAbsent(member) { "user${usersCounter.incrementAndGet()}" }
+        val name = memberNames.computeIfAbsent(member) { "user${usersCounter.incrementAndGet()}" }.also {
+            println("Member joined: $it")
+        }
 
         // Associates this socket to the member ID.
         // Since iteration is likely to happen more frequently than adding new items,

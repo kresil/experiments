@@ -4,9 +4,6 @@ import io.ktor.websocket.*
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/**
- * Tests the [ChatApplication].
- */
 class ChatApplicationTest {
     /**
      * This is an integration test that verifies the behaviour of a simple conversation with an empty server.
@@ -55,7 +52,7 @@ class ChatApplicationTest {
     fun testDualConversation() {
         // Creates the [TestApplicationEngine] with the [Application::main] module. Check the previous test for more details.
         testApplication {
-            // Sets to hold the messages from each children.
+            // Sets to hold the messages from each child.
             // Since this is multithreaded and socket-related.
             // The order might change in each run, so we use a Set instead of a List to check that the messages
             // are received without having into account exact the order.

@@ -12,7 +12,7 @@ and replaced by a class to practice the `expect/actual` pattern more explicitly.
 
 This addition follows the same principles:
 
-- test common functionality in `commonTest`;
+- test common functionality in [`commonTest`](./kmp/src/commonTest/kotlin);
 - test platform-specific functionality in each platform's test source set (`<Platform>Test`)
 
 ### Intermediate Source Sets
@@ -47,6 +47,36 @@ An alternative for this pattern is to use `expect fun` + `interface` in the comm
 
 ### Integration with JavaScript 
 
-- [Dependencies from NPM](https://kotlinlang.org/docs/using-packages-from-npm.html)
+#### Javascript -> Kotlin
 
+Example available [here](./kmp/src/jsMain/kotlin/randomstring.kt).
+
+References:
+
+- [JS to Kotlin Interop](https://kotlinlang.org/docs/js-to-kotlin-interop.html)
+- [Dependencies from NPM](https://kotlinlang.org/docs/using-packages-from-npm.html)
 - [Accessing External JavaScript Library](https://discuss.kotlinlang.org/t/kotlin-1-3-how-to-access-external-javascript-library-from-jsmain/15778)
+
+## Ktor Framework
+
+Module: [`ktor`](./ktor)
+
+### Define Application Module
+
+TODO()
+
+### Installing Plugins
+
+TODO()
+
+### Defining Routes
+
+TODO()
+
+### Testing the Application
+
+TODO()
+
+### Client
+
+TODO()
