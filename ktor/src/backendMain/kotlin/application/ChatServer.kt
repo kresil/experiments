@@ -41,9 +41,7 @@ class ChatServer {
      */
     suspend fun memberJoin(member: String, socket: WebSocketSession) {
         // Checks if this user is already registered in the server and gives him/her a temporal name if required.
-        val name = memberNames.computeIfAbsent(member) { "user${usersCounter.incrementAndGet()}" }.also {
-            println("Member joined: $it")
-        }
+        val name = memberNames.computeIfAbsent(member) { "user${usersCounter.incrementAndGet()}" }
 
         // Associates this socket to the member ID.
         // Since iteration is likely to happen more frequently than adding new items,
