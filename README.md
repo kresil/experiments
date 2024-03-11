@@ -2,7 +2,7 @@
 
 ## KMP - Kotlin Multiplatform
 
-Module: [`kmp`](./kmp)
+Module: [kmp](./kmp)
 
 ### Testing the Architecture
 
@@ -59,24 +59,147 @@ References:
 
 ## Ktor Framework
 
-Module: [`ktor`](./ktor)
+Module: [ktor](./ktor)
+
+### Launching the Application
+
+The application can be launched using the `Application` class.
+
+```kotlin
+fun main() {
+    embeddedServer(Netty, port = 8000) {
+        // ...
+    }.start(wait = true)
+}
+```
 
 ### Define Application Module
 
-TODO()
+In Ktor, the application module is using the `Application` class.
+
+```kotlin
+fun Application.module() {
+    // ...
+}
+```
 
 ### Installing Plugins
 
-TODO()
+Each plugin has its own configuration, which can be set using the `install` function.
+
+```kotlin
+fun Application.module() {
+    install(DefaultHeaders) {
+        header("X-Engine", "Ktor")
+    }
+    install(CallLogging) {
+        level = Level.INFO
+        filter { call -> call.request.path().startsWith("/api") }
+    }
+    install(WebSockets) {
+        // configuration if needed
+    }
+    // install(...)
+}
+```
+
+To use specific plugins, they must be added to the dependencies in the correspondent `build.gradle.kts` file.
+
+```kotlin
+implementation("io.ktor:ktor-server-default-headers")
+implementation("io.ktor:ktor-server-call-logging")
+implementation("io.ktor:ktor-server-websockets")
+```
 
 ### Defining Routes
 
-TODO()
+Routes can be defined using the `routing` function.
+
+```kotlin
+fun Application.module() {
+    routing {
+        get("/") {
+            call.respondText("Hello, World!")
+        }
+        get("/json") {
+            call.respond(mapOf("hello" to "world"))
+        }
+        // ...
+    }
+}
+```
 
 ### Testing the Application
 
-TODO()
+To test the application, the `testApplication` function can be used which exposes a `client` object that
+can be used to perform requests to the server.
+
+Example:
+
+```kotlin
+testApplication {
+    val log = arrayListOf<String>()
+
+    // We perform a test websocket connection to this route. Effectively acting as a client.
+    // The [incoming] parameter allows receiving frames, while the [outgoing] allows sending frames to the server.
+    val client = client.config {
+        install(WebSockets)
+    }
+
+    client.webSocket("/ws") {
+        // Send a HELLO message
+        outgoing.send(Frame.Text("HELLO"))
+
+        // We then receive two messages (the message notifying that the member joined, and the message we sent echoed to us)
+        for (n in 0 until 2) {
+            log += (incoming.receive() as Frame.Text).readText()
+        }
+    }
+
+    // asserts
+    assertEquals(listOf("Member joined", "HELLO"), log)
+}
+```
 
 ### Client
 
-TODO()
+Similar to the `Application` class,
+the `HttpClient` class can be used to perform requests to a server and install plugins.
+
+```kotlin
+val client = HttpClient(CIO) {
+    install(Logging)
+    // install(...)
+}
+```
+
+#### Requests
+
+The `client` object can be used to make requests to the server.
+
+```kotlin
+val response: HttpResponse = client.get("http://localhost:8080")
+```
+
+```kotlin
+@Serializable
+data class Customer(val id: Int, val firstName: String, val lastName: String)
+
+val response: HttpResponse = client.post("http://localhost:8080/customer") {
+    contentType(ContentType.Application.Json)
+    setBody(Customer(3, "Jet", "Brains"))
+}
+```
+
+More [at](https://ktor.io/docs/request.html).
+
+#### Responses
+
+The `HttpResponse` object can be used to access the response's status code, headers, and body.
+
+```kotlin
+val httpResponse: HttpResponse = client.get("https://ktor.io/")
+val stringBody: String = httpResponse.body()
+```
+
+More [at](https://ktor.io/docs/response.html#body).
