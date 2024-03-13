@@ -13,7 +13,7 @@ and replaced by a class to practice the `expect/actual` pattern more explicitly.
 This addition follows the same principles:
 
 - test common functionality in [`commonTest`](./kmp/src/commonTest/kotlin);
-- test platform-specific functionality in each platform's test source set (`<Platform>Test`)
+- test platform-specific functionality in each platform's test source set (`<target.`Platform.jvm`>Test`)
 
 ### Intermediate Source Sets
 
@@ -45,11 +45,7 @@ An alternative for this pattern is to use `expect fun` + `interface` in the comm
 |:-------------------------------------:|
 |               KT-61573                |
 
-### Integration with JavaScript 
-
-#### Javascript -> Kotlin
-
-Example available [here](./kmp/src/jsMain/kotlin/randomstring.kt).
+### Integration with JavaScript
 
 References:
 

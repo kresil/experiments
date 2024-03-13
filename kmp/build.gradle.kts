@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -7,8 +5,7 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
-    targetHierarchy.default()
+    applyDefaultHierarchyTemplate()
     jvm()
     androidTarget {
         publishLibraryVariants("release")
@@ -31,6 +28,19 @@ kotlin {
     linuxX64()
 
     sourceSets {
+        /**
+         * - common
+         *    - jvm
+         *    - android
+         *    - native
+         *      - linuxX64
+         *    - js
+         *      - node
+         *      - browser
+         */
+
+        // Source Set Category: Common
+        // use `by creating` if a source set does not exist yet
         val commonMain by getting {
             dependencies {
                 // put your multiplatform dependencies here
@@ -41,19 +51,45 @@ kotlin {
                 implementation(libs.kotlin.test)
             }
         }
-        val nativeMain by getting {
+
+        // Source Set Category: Intermediary
+        /*val nativeMain by getting {
             dependsOn(commonMain)
         }
+
+        val nativeTest by getting {
+            dependsOn(commonTest)
+        }*/
+
+        // Source Set Category: Platform
+        val androidMain by getting {
+            dependsOn(commonMain)
+        }
+
+        val androidUnitTest by getting {
+            dependsOn(commonTest)
+        }
+
         val jsMain by getting {
+            dependsOn(commonMain)
             dependencies {
                 implementation(kotlin("stdlib-js"))
-                implementation(npm("randomstring", "1.3.0"))
+                // implementation(npm("randomstring", "1.3.0"))
             }
         }
         val jsTest by getting {
+            dependsOn(commonTest)
             dependencies {
                 implementation(kotlin("test-js"))
             }
+        }
+
+        val linuxX64Main by getting {
+            dependsOn(commonMain)
+        }
+
+        val linuxX64Test by getting {
+            dependsOn(commonTest)
         }
     }
 }
@@ -65,3 +101,6 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
+
+
+// TODO: jvmTest, testDebugUnitTest, testReleaseUnitTest add to allTests task
