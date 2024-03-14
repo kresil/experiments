@@ -74,15 +74,3 @@ kotlin {
         }
     }
 }
-
-tasks.register<JavaExec>("run") {
-    dependsOn("frontendBrowserDistribution")
-    dependsOn("backendMainClasses")
-    mainClass.set("backendMain.ChatApplicationKt")
-    // classpath(configurations.getByName("backendRuntimeClasspath").plus("./build/libs/ktor-backend-0.0.1.jar"))
-    args = emptyList()
-}
-
-tasks.named("frontendBrowserProductionWebpack") {
-    mustRunAfter(":ktor:backendProcessResources")
-}

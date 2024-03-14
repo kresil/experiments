@@ -15,9 +15,11 @@ kotlin {
             }
         }
     }
-    js {
+    js(compiler = IR) {
+        binaries.executable()
         useCommonJs()
         browser {
+
         }
         nodejs {
         }
@@ -53,13 +55,13 @@ kotlin {
         }
 
         // Source Set Category: Intermediary
-        /*val nativeMain by getting {
+        val nativeMain by getting {
             dependsOn(commonMain)
         }
 
         val nativeTest by getting {
             dependsOn(commonTest)
-        }*/
+        }
 
         // Source Set Category: Platform
         val androidMain by getting {
@@ -85,11 +87,11 @@ kotlin {
         }
 
         val linuxX64Main by getting {
-            dependsOn(commonMain)
+            dependsOn(nativeMain)
         }
 
         val linuxX64Test by getting {
-            dependsOn(commonTest)
+            dependsOn(nativeTest)
         }
     }
 }
@@ -101,6 +103,3 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
     }
 }
-
-
-// TODO: jvmTest, testDebugUnitTest, testReleaseUnitTest add to allTests task

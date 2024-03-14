@@ -15,6 +15,8 @@ This addition follows the same principles:
 - test common functionality in [`commonTest`](./kmp/src/commonTest/kotlin);
 - test platform-specific functionality in each platform's test source set (`<target.`Platform.jvm`>Test`)
 
+> To run the tests for all supported targets, use the command `./gradlew kmp:allTests`.
+
 ### Intermediate Source Sets
 
 [Intermediate Source Sets](https://kotlinlang.org/docs/multiplatform-discover-project.html#intermediate-source-sets)

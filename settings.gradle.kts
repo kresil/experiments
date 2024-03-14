@@ -18,6 +18,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kresil.experiments"
+rootProject.name = "kresil-experiments"
 include(":kmp")
-include("ktor")
+include(":ktor")
+include(":js-app")
