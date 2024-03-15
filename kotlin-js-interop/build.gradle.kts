@@ -8,8 +8,9 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-js"))
-    // TODO: necessary to access adapter in jsMain?
-    implementation(project(":kmp"))
+    // Install npm dependencies
+    implementation(npm("randomstring", "1.3.0"))
+    implementation(npm("is-sorted", "1.0.5"))
 }
 
 kotlin {

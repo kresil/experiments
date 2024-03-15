@@ -7,5 +7,5 @@ actual class Platform actual constructor() {
 }
 
 fun main() {
-    println("Hello, Kotlin/Native!")
+
 }

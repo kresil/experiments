@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     id("module.publication")
+    kotlin("plugin.serialization") version "1.9.22"
 }
 
 kotlin {
@@ -17,7 +18,7 @@ kotlin {
     }
     js(compiler = IR) {
         binaries.executable()
-        useCommonJs()
+        useEsModules()
         browser {
 
         }
@@ -76,6 +77,7 @@ kotlin {
             dependsOn(commonMain)
             dependencies {
                 implementation(kotlin("stdlib-js"))
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
                 // implementation(npm("randomstring", "1.3.0"))
             }
         }
