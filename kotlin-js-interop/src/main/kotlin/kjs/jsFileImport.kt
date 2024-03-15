@@ -1,4 +1,4 @@
-@file:JsModule("../../../../../js-app/src/main/js/file-export.mjs")
+@file:JsModule("../../../../../kotlin-js-interop/src/main/js/file-export.mjs")
 
 package kjs
 
