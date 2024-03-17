@@ -95,13 +95,9 @@ This [addition](./kmp/src/commonMain/kotlin) follows the same principles:
 To run the tests for all supported targets, use the command:
 
 ```bash
-# from root or within a run configuration
+# from root or within a run configuration 
 ./gradlew :kmp:cleanAllTests :kmp:allTests --rerun-tasks
 ```
-
-> [!IMPORTANT]  
-> There's currently a Native target's dependency issue,
-> which does not list `linuxX64Main` as a target for testing.
 
 ### Intermediate Source Sets
 
