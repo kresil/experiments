@@ -1,7 +1,8 @@
+import org.junit.jupiter.api.Assertions.assertEquals
 import target.Platform
 import target.PlatformType
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import target.Target
+import org.junit.jupiter.api.Test
 
 class AndroidPlatformTest {
 

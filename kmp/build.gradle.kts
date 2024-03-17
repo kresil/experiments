@@ -1,3 +1,5 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
@@ -7,20 +9,21 @@ plugins {
 
 repositories {
     mavenCentral()
+    gradlePluginPortal()
     google()
 }
 
 kotlin {
-    applyDefaultHierarchyTemplate()
+    // applyDefaultHierarchyTemplate()
     jvm()
     androidTarget {
         // Needed for the Android library artifact to be published
         publishLibraryVariants("release")
-        /*compilations.all {
+        compilations.all {
             kotlinOptions {
                 jvmTarget = "1.8"
             }
-        }*/
+        }
     }
     js(compiler = IR) {
         binaries.executable() // necessary for the IR compiler
@@ -31,10 +34,25 @@ kotlin {
         nodejs {
         }
     }
-    /*iosX64()
-    iosArm64()
-    iosSimulatorArm64()*/
-    linuxX64()
+    val hostOs = System.getProperty("os.name")
+    val isArm64 = System.getProperty("os.arch") == "aarch64"
+    val isMingwX64 = hostOs.startsWith("Windows")
+    val nativeTarget = when {
+        hostOs == "Mac OS X" && isArm64 -> macosArm64("native")
+        hostOs == "Mac OS X" && !isArm64 -> macosX64("native")
+        hostOs == "Linux" && isArm64 -> linuxArm64("native")
+        hostOs == "Linux" && !isArm64 -> linuxX64("native")
+        isMingwX64 -> mingwX64("native")
+        else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
+    }
+
+    nativeTarget.apply {
+        binaries {
+            executable {
+                entryPoint = "main"
+            }
+        }
+    }
 
     sourceSets {
         /**
@@ -71,8 +89,12 @@ kotlin {
         }
 
         // Source Set Category: Platform
-        androidMain.configure {
+        val androidMain by getting {
             dependsOn(commonMain)
+        }
+
+        val androidUnitTest by getting {
+            dependsOn(commonTest)
         }
 
         val jsMain by getting {
@@ -90,20 +112,12 @@ kotlin {
             }
         }
 
-        val linuxX64Main by getting {
-            dependsOn(nativeMain)
-        }
-
-        val linuxX64Test by getting {
-            dependsOn(nativeTest)
-        }
-
     }
 
 }
 
 android {
-    namespace = "kresil-experiments"
+    namespace = "kresil.experiments"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -112,39 +126,21 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
-    /*sourceSets.all {
-        java.srcDirs(file("src/android${name.capitalize()}/kotlin"))
-        res.srcDirs(file("src/android${name.capitalize()}/res"))
-        resources.srcDirs(file("src/android${name.capitalize()}/resources"))
-        manifest.srcFile(file("src/android${name.capitalize()}/AndroidManifest.xml"))
-    }*/
-    sourceSets {
-        getByName("main") {
-            java.srcDirs("src/androidMain/kotlin")
-            res.srcDirs("src/androidMain/res")
-        }
-        getByName("test") {
-            java.srcDirs("src/androidTest/kotlin")
-            res.srcDirs("src/androidTest/res")
-        }
-    }
-    // testOptions.unitTests.isIncludeAndroidResources = true
 }
 
-/*subprojects {
-    afterEvaluate {
-        project.extensions.findByType<KotlinMultiplatformExtension>()?.let { ext ->
-            ext.sourceSets.removeAll { sourceSet ->
-                setOf(
-                    "androidMain",
-                    "androidUnitTest",
-                    "androidTestDebug",
-                    "androidAndroidTestRelease",
-                    "androidTestFixtures",
-                    "androidTestFixturesDebug",
-                    "androidTestFixturesRelease",
-                ).contains(sourceSet.name)
-            }
-        }
+tasks.withType<Test> {
+    useJUnitPlatform()
+}
+
+tasks.withType<AbstractTestTask> {
+    // see all logs even from passed tests
+    testLogging {
+        events("standardOut", "started", "passed", "skipped", "failed")
+        exceptionFormat = TestExceptionFormat.FULL
     }
-}*/
+}
+
+tasks.named("allTests") {
+    dependsOn("cleanTestDebugUnitTest")
+    finalizedBy("cleanAllTests")
+}

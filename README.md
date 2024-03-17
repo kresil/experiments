@@ -95,7 +95,8 @@ This [addition](./kmp/src/commonMain/kotlin) follows the same principles:
 To run the tests for all supported targets, use the command:
 
 ```bash
-./gradlew kmp:allTests
+# from root or within a run configuration
+./gradlew :kmp:cleanAllTests :kmp:allTests --rerun-tasks
 ```
 
 > [!IMPORTANT]  
@@ -117,8 +118,8 @@ The dependencies between source sets can be configured within the corresponding 
 as mentioned [here](https://kotlinlang.org/docs/multiplatform-hierarchy.html#manual-configuration).
 
 > [!IMPORTANT]
-> The `iOS` source set was removed from the template,
-> because there is no `macOS` machine available for testing, as required by Apple.
+> Both `iOS` and `macOs` source sets were removed from the template,
+> because there is no `macOS x86-64` host available for testing, as required by Apple.
 
 ### Adapter
 
