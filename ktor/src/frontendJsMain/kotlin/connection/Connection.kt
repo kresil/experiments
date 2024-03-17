@@ -1,4 +1,6 @@
-import ChatDOMHandler.appendMessage
+package connection
+
+import connection.dom.ChatDOMHandler.appendMessage
 import io.ktor.client.plugins.websocket.*
 import kotlinx.browser.window
 import kotlinx.coroutines.DelicateCoroutinesApi

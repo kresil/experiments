@@ -1,3 +1,6 @@
+import connection.WsClient
+import connection.dom.ChatDOMHandler
+import connection.initConnection
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import kotlinx.coroutines.DelicateCoroutinesApi

@@ -1,6 +1,35 @@
 # Experiments
 
-## KMP - Kotlin Multiplatform
+## Table of Contents
+
+- [Kotlin Multiplatform](#kotlin-multiplatform)
+    - [Architecture Overview](#architecture-overview)
+    - [Testing the Application](#testing-the-application)
+    - [Intermediate Source Sets](#intermediate-source-sets)
+    - [Adapter](#adapter)
+    - [Relevant Design Choices](#relevant-design-choices)
+- [Kotlin-Js Interop](#kotlin-js-interop)
+    - [Javascript to Kotlin](#javascript-to-kotlin)
+        - [Demonstrations](#demonstrations)
+        - [NPM Dependencies](#npm-dependencies)
+        - [Build and Run](#build-and-run)
+    - [Kotlin to Javascript](#kotlin-to-javascript)
+        - [Demonstration](#demonstration)
+        - [Run](#run)
+    - [References](#references)
+- [Ktor Framework](#ktor-framework)
+    - [Server](#server)
+        - [Launching the Application](#launching-the-application)
+        - [Define Application Module](#define-application-module)
+        - [Installing Plugins](#installing-plugins)
+        - [Defining Routes](#defining-routes)
+        - [Testing the Application](#testing-the-application-1)
+    - [Client](#client)
+        - [Requests](#requests)
+        - [Responses](#responses)
+    - [Demonstration](#demonstration-1)
+
+## Kotlin Multiplatform
 
 > The [Kotlin Multiplatform](https://kotlinlang.org/docs/multiplatform.html) (KMP) technology facilitates the sharing of
 > application code across several platforms,
@@ -24,10 +53,10 @@ following situations:
 
 1. A certain functionality cannot be implemented commonly because:
 
-   - It requires access to specific target APIs;
-   - The libraries available for common code _(i.e., Standard Kotlin Library, Kotlinx)_ do not cover the desired
-     functionalities,
-     and there's no external KMP-compatible library available to be used as a dependency (or it is discouraged to use);
+    - It requires access to specific target APIs;
+    - The libraries available for common code _(i.e., Standard Kotlin Library, Kotlinx)_ do not cover the desired
+      functionalities,
+      and there's no external KMP-compatible library available to be used as a dependency (or it is discouraged to use);
 
 2. A certain target does not directly support KMP _(e.g., Node.js)_, and thus an [adapter](#adapter) is needed for the
    code to be callable from the target.
@@ -48,9 +77,9 @@ actual fun platformName(): String = "JVM"
 actual fun platformName(): String = "JS"
 ```
 
-| ![KMP Architecture](./docs/imgs/kmp-architecture.png) |
-|:-----------------------------------------------------:|
-|               KMP Architecture Overview               |
+| <img src="./docs/imgs/kmp-architecture.png" alt="KMP Architecture" width="50%"> |
+|:-------------------------------------------------------------------------------:|
+|                            KMP Architecture Overview                            |
 
 ### Testing the Application
 
@@ -60,12 +89,14 @@ and replaced by a few examples to practice the `expect/actual` mechanism more th
 
 This [addition](./kmp/src/commonMain/kotlin) follows the same principles:
 
-- test common functionality in [CommonTest](./kmp/src/commonTest/kotlin);
-- test platform-specific functionality in each platform's test source set (`<Platform>Test`)
+- **test common functionality** in [CommonTest](./kmp/src/commonTest/kotlin);
+- **test platform-specific functionality** in each platform's test source set (`<Platform>Test`)
 
-> To run the tests for all supported targets, use the command:
->
-> `./gradlew kmp:allTests`
+To run the tests for all supported targets, use the command:
+
+```bash
+./gradlew kmp:allTests
+```
 
 > [!IMPORTANT]  
 > There's currently a Native target's dependency issue,
@@ -110,7 +141,7 @@ essentially acting as a consumer.
 ```bash
 # from root
 node js-app/src/main/js/server.mjs
-# take a look at the express paths and PORT configured in `server.mjs`
+# take a look at the express paths and PORT configured in the server
 # open an HTTP client and access http://localhost:PORT
 ```
 
@@ -173,8 +204,8 @@ the dependencies must be added to the `dependencies` block of the `build.gradle.
 
 ```kotlin
 dependencies {
-   // Install npm dependencies
-   implementation(npm("randomstring", "1.3.0"))
+    // Install npm dependencies
+    implementation(npm("randomstring", "1.3.0"))
 }
 ```
 
@@ -204,9 +235,9 @@ randomstring.generate(7);
 @JsModule("randomstring")
 @JsNonModule
 external object RandomStringFromNpm {
-   fun generate(
-      length: Int = definedExternally,
-   ): String
+    fun generate(
+        length: Int = definedExternally,
+    ): String
 }
 ```
 
@@ -251,7 +282,7 @@ external object RandomStringFromNpm {
 node kotlin-js-interop/src/main/js/importing.mjs
 ```
 
-#### References
+### References
 
 - [Kotlinlang: JS to Kotlin Interop](https://kotlinlang.org/docs/js-to-kotlin-interop.html)
 - [Kotlinlang: Kotlin to JS Interop](https://kotlinlang.org/docs/js-interop.html)
@@ -261,9 +292,19 @@ node kotlin-js-interop/src/main/js/importing.mjs
 
 ## Ktor Framework
 
+> [Ktor](https://ktor.io) is a modular framework for developing asynchronous server and client applications.
+>
+> Developed by _JetBrains_, it was built with pure _Kotlin_ and is integrated with
+> the [Coroutines](https://github.com/Kotlin/kotlinx.coroutines)
+> system. This system allows asynchronous code to be defined sequentially
+> and can be executed without blocking threads, taking greater advantage of the computing system
+> available
+
 Module: [ktor](./ktor)
 
-### Launching the Application
+### Server
+
+#### Launching the Application
 
 The application can be launched using the `Application` class.
 
@@ -275,9 +316,9 @@ fun main() {
 }
 ```
 
-### Define Application Module
+#### Define Application Module
 
-In _Ktor_, the application module is using the `Application` class.
+In _Ktor_, the application module is defined using the `Application` class.
 
 ```kotlin
 fun Application.module() {
@@ -285,9 +326,10 @@ fun Application.module() {
 }
 ```
 
-### Installing Plugins
+#### Installing Plugins
 
-Each plugin has its own configuration, which can be set using the `install` function.
+A plugin can be installed using the `install` function and configured using its **last parameter function** (_trailing
+lambda_).
 
 ```kotlin
 fun Application.module() {
@@ -313,7 +355,7 @@ implementation("io.ktor:ktor-server-call-logging")
 implementation("io.ktor:ktor-server-websockets")
 ```
 
-### Defining Routes
+#### Defining Routes
 
 Routes can be defined using the `routing` function.
 
@@ -331,41 +373,34 @@ fun Application.module() {
 }
 ```
 
-### Testing the Application
+#### Testing the Application
 
-To test the application, the `testApplication` function can be used which exposes a `client` object that
-can be used to perform requests to the server.
+To test the application, you can utilize the `testApplication` function, which provides access to a `client` object for
+making requests to the server.
 
 Example:
 
 ```kotlin
 testApplication {
     val log = arrayListOf<String>()
-
     // We perform a test websocket connection to this route. Effectively acting as a client.
     // The [incoming] parameter allows receiving frames, while the [outgoing] allows sending frames to the server.
     val client = client.config {
         install(WebSockets)
     }
-
     client.webSocket("/ws") {
-        // Send a HELLO message
         outgoing.send(Frame.Text("HELLO"))
-
-        // We then receive two messages (the message notifying that the member joined, and the message we sent echoed to us)
         for (n in 0 until 2) {
             log += (incoming.receive() as Frame.Text).readText()
         }
     }
-
-    // asserts
     assertEquals(listOf("Member joined", "HELLO"), log)
 }
 ```
 
 ### Client
 
-Similar to the `Application` class,
+Similar to the `Application` class as seen in the [Server](#server) section,
 the `HttpClient` class can be used to perform requests to a server and install plugins.
 
 ```kotlin
@@ -405,3 +440,7 @@ val stringBody: String = httpResponse.body()
 ```
 
 More examples [at](https://ktor.io/docs/response.html).
+
+### Demonstration
+
+TODO

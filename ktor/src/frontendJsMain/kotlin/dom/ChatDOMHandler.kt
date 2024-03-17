@@ -1,3 +1,6 @@
+package connection.dom
+
+import connection.WsClient
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope

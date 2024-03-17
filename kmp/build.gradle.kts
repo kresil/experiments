@@ -5,6 +5,11 @@ plugins {
     kotlin("plugin.serialization") version "1.9.22"
 }
 
+repositories {
+    mavenCentral()
+    google()
+}
+
 kotlin {
     applyDefaultHierarchyTemplate()
     jvm()
@@ -103,5 +108,25 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+    /*sourceSets.all {
+        java.srcDirs(file("src/android${name.capitalize()}/kotlin"))
+        res.srcDirs(file("src/android${name.capitalize()}/res"))
+        resources.srcDirs(file("src/android${name.capitalize()}/resources"))
+        manifest.srcFile(file("src/android${name.capitalize()}/AndroidManifest.xml"))
+    }*/
+    sourceSets {
+        getByName("main") {
+            java.srcDirs("src/androidMain/kotlin")
+            res.srcDirs("src/androidMain/res")
+        }
+        getByName("test") {
+            java.srcDirs("src/androidTest/kotlin")
+            res.srcDirs("src/androidTest/res")
+        }
     }
 }

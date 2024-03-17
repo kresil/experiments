@@ -1,3 +1,5 @@
+package connection
+
 import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.http.*

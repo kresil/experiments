@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "kresi.experiments"
+    group = "kresil-experiments"
     version = "0.0.1"
 }
 

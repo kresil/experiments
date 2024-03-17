@@ -6,6 +6,8 @@ dependencies {
     implementation(libs.nexus.publish)
 }
 
-kotlin {
-    jvmToolchain(17)
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(17))
+    }
 }
