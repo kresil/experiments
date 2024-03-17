@@ -77,7 +77,7 @@ actual fun platformName(): String = "JVM"
 actual fun platformName(): String = "JS"
 ```
 
-| <img src="./docs/imgs/kmp-architecture.png" alt="KMP Architecture" width="50%"> |
+| <img src="./docs/imgs/kmp-architecture.png" alt="KMP Architecture" width="80%"> |
 |:-------------------------------------------------------------------------------:|
 |                            KMP Architecture Overview                            |
 
@@ -109,9 +109,9 @@ enable sharing code
 across more than one platform,
 yet not encompassing all, as that would be the role of the common source set.
 
-| ![Intermediate Source Set](./docs/imgs/inter-source-set.png) |
-|:------------------------------------------------------------:|
-|               Intermediate Source Set Example                |
+| <img src="./docs/imgs/inter-source-set.png" alt="Intermediate Source Set" width="80%"> |
+|:--------------------------------------------------------------------------------------:|
+|                            Intermediate Source Set Example                             |
 
 The dependencies between source sets can be configured within the corresponding `build.gradle.kts` file,
 as mentioned [here](https://kotlinlang.org/docs/multiplatform-hierarchy.html#manual-configuration).
@@ -122,13 +122,14 @@ as mentioned [here](https://kotlinlang.org/docs/multiplatform-hierarchy.html#man
 
 ### Adapter
 
-The **adapter** is a module that allows the code to be called from a target that does not directly support _KMP_ and
+The **adapter** is a module that allows code defined in a _KMP_ project to be called from a target that does not
+directly support _KMP_ and
 _Kotlin_ in general.
 
 For demonstration purposes,
 a pure [JS application](./js-app/src/main/js/server.mjs) was created
 to call the [adapter](./kmp/src/jsMain/kotlin/Adapter.js.kt)
-defined in the `JsMain` module of the `kmp` module,
+defined in the `JsMain` _sorceset_ of the `kmp` module,
 essentially acting as a consumer.
 
 #### Build and Run
@@ -153,9 +154,9 @@ As mentioned in the [issue](https://youtrack.jetbrains.com/issue/KT-61573), the 
 should only be used for `functions` and `interfaces`.
 An alternative for this pattern is to use `expect fun` + `interface` in the common module.
 
-| ![KT-61573](./docs/imgs/kt-61573.png) |
-|:-------------------------------------:|
-|               KT-61573                |
+| <img src="./docs/imgs/kt-61573.png" alt="KT-61573" width="80%"> |
+|:---------------------------------------------------------------:|
+|                            KT-61573                             |
 
 ## Kotlin-Js Interop
 

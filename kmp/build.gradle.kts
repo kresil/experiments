@@ -14,16 +14,17 @@ kotlin {
     applyDefaultHierarchyTemplate()
     jvm()
     androidTarget {
+        // Needed for the Android library artifact to be published
         publishLibraryVariants("release")
-        compilations.all {
+        /*compilations.all {
             kotlinOptions {
                 jvmTarget = "1.8"
             }
-        }
+        }*/
     }
     js(compiler = IR) {
-        binaries.executable()
-        useEsModules()
+        binaries.executable() // necessary for the IR compiler
+        useEsModules() // or useCommonJs()
         browser {
 
         }
@@ -70,12 +71,8 @@ kotlin {
         }
 
         // Source Set Category: Platform
-        val androidMain by getting {
+        androidMain.configure {
             dependsOn(commonMain)
-        }
-
-        val androidUnitTest by getting {
-            dependsOn(commonTest)
         }
 
         val jsMain by getting {
@@ -100,11 +97,13 @@ kotlin {
         val linuxX64Test by getting {
             dependsOn(nativeTest)
         }
+
     }
+
 }
 
 android {
-    namespace = "kresil.experiments"
+    namespace = "kresil-experiments"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
@@ -129,4 +128,23 @@ android {
             res.srcDirs("src/androidTest/res")
         }
     }
+    // testOptions.unitTests.isIncludeAndroidResources = true
 }
+
+/*subprojects {
+    afterEvaluate {
+        project.extensions.findByType<KotlinMultiplatformExtension>()?.let { ext ->
+            ext.sourceSets.removeAll { sourceSet ->
+                setOf(
+                    "androidMain",
+                    "androidUnitTest",
+                    "androidTestDebug",
+                    "androidAndroidTestRelease",
+                    "androidTestFixtures",
+                    "androidTestFixturesDebug",
+                    "androidTestFixturesRelease",
+                ).contains(sourceSet.name)
+            }
+        }
+    }
+}*/
