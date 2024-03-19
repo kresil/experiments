@@ -1,6 +1,6 @@
 `use strict`
 
-import {Adapter} from '../../../../build/js/packages/kresil-experiments-kmp/kotlin/kresil-experiments-kmp.mjs'
+import {Adapter} from 'kresil-experiments-kmp'
 import express from 'express'
 
 const app = express()
@@ -24,7 +24,7 @@ app.get('/clear', (req, res) => {
 });
 
 app.get('/platform', (req, res) => {
-    const platform = adapterInstance.getPlatform()
+    const platform = adapterInstance.getPlatformType()
     res.send(platform)
 })
 
