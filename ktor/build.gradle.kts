@@ -25,7 +25,7 @@ kotlin {
             testTask { enabled = false }
             @OptIn(ExperimentalDistributionDsl::class)
             distribution {
-                directory = file("$projectDir/src/backendJVMMain/resources/web")
+                outputDirectory = file("$projectDir/src/backendJvmMain/resources/web")
             }
             binaries.executable()
         }
@@ -40,15 +40,9 @@ kotlin {
     sourceSets {
 
         val commonMain by getting {
-            dependencies {
-
-            }
         }
 
         val commonTest by getting {
-            dependencies {
-                implementation("org.jetbrains.kotlin:kotlin-test")
-            }
         }
 
         val backendJvmMain by getting {
@@ -76,17 +70,26 @@ kotlin {
         val frontendMain by creating {
             dependsOn(commonMain)
             dependencies {
+                implementation(libs.kotlin.stdlib)
+                implementation(libs.ktor.client.core)
+                implementation(libs.kotlinx.coroutines.core)
+                implementation("io.ktor:ktor-client-websockets")
+            }
+        }
 
+        val frontendTest by creating {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlin.test)
             }
         }
 
         val frontendJsMain by getting {
             dependsOn(frontendMain)
             dependencies {
-                implementation("io.ktor:ktor-client-websockets")
                 implementation("org.jetbrains.kotlin:kotlin-stdlib-js")
                 implementation("io.ktor:ktor-client-js")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.6.4")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core-js:1.7.3")
             }
         }
 

@@ -1,6 +1,6 @@
-package connection.dom
+package dom
 
-import connection.WsClient
+import client.WsClient
 import kotlinx.browser.document
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -12,7 +12,7 @@ import org.w3c.dom.events.KeyboardEvent
 /**
  * Handles the DOM events and updates the UI.
  */
-object ChatDOMHandler {
+object DomHandler {
     @OptIn(DelicateCoroutinesApi::class)
     fun setupEventListeners(wsClient: WsClient) {
         document.addEventListener("DOMContentLoaded", {
