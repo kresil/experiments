@@ -1,4 +1,4 @@
-package plugins
+package application.plugins
 
 import application.models.ChatSession
 import io.ktor.server.application.*

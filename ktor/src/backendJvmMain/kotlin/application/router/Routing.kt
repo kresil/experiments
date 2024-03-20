@@ -1,7 +1,7 @@
-package router
+package application.router
 
-import application.ChatServer
-import application.WebSocketServerHandler
+import application.server.ChatServer
+import application.server.WebSocketServerHandler
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*

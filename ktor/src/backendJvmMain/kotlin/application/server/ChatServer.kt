@@ -1,4 +1,4 @@
-package application
+package application.server
 
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedSendChannelException

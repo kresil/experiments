@@ -96,7 +96,7 @@ kotlin {
         val frontendAndroidMain by getting {
             dependsOn(frontendMain)
             dependencies {
-
+                implementation("io.ktor:ktor-client-android")
             }
         }
     }

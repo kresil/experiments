@@ -1,4 +1,4 @@
-package plugins
+package application.plugins
 
 import io.ktor.http.*
 import io.ktor.server.application.*

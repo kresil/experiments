@@ -1,8 +1,8 @@
 import io.ktor.client.plugins.websocket.*
 import io.ktor.server.testing.*
 import io.ktor.websocket.*
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import junit.framework.TestCase.assertEquals
+import org.junit.Test
 
 class ChatApplicationTest {
     /**

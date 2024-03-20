@@ -1,13 +1,14 @@
 package application
 
+import application.plugins.configureHeaders
+import application.plugins.configureMonitoring
+import application.plugins.configureSessions
+import application.plugins.configureStatusPages
+import application.plugins.configureWebSockets
+import application.router.configureRouting
+import application.server.ChatServer
 import configureInterceptors
 import io.ktor.server.application.*
-import plugins.configureHeaders
-import plugins.configureMonitoring
-import plugins.configureSessions
-import plugins.configureStatusPages
-import plugins.configureWebSockets
-import router.configureRouting
 
 /**
  * This is the main class of the application.
