@@ -33,7 +33,7 @@ class ChatViewModel : ViewModel() {
             ChatConnHandler.initConnection(
                 this,
                 wsClient = wsClientAndroid,
-                writeMessage = { message -> writeMessage(message) }
+                appendMessage = { writeMessage(it) }
             )
         }
     }
@@ -41,6 +41,7 @@ class ChatViewModel : ViewModel() {
     fun sendMessage(message: String) {
         viewModelScope.launch {
             if (message.isNotEmpty()) {
+                writeMessage("You: $message")
                 wsClientAndroid.send(message)
             }
         }

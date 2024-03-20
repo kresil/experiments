@@ -441,4 +441,35 @@ More examples [at](https://ktor.io/docs/response.html).
 
 ### Demonstration
 
-TODO
+#### Server
+
+To start the server, run the following command:
+
+```bash
+# from root
+./gradlew ktor:backendJvmRun -DmainClass=MainKt --quiet
+```
+
+Code at [Main.kt](./ktor/src/backendJvmMain/kotlin/Main.kt).
+Static files at [resources](./ktor/src/backendJvmMain/resources/web).
+
+#### Javascript Client
+
+In any http client, access `http://localhost:8080` and interact with the UI.
+
+Code at [frontendJs](./ktor/src/frontendJsMain/kotlin).
+
+#### Android Client
+
+To expose the server to the internet, use [ngrok](https://ngrok.com/) and in its terminal run:
+
+```bash
+ngrok http http://localhost:8080
+```
+
+Grab the url string and replace the `host` parameter in
+the [android-config](ktor/src/frontendAndroidMain/kotlin/config/Config.android.kt) file.
+
+Run the application on an emulator or physical device.
+
+Code at [android-app](./android-app/src/main/java/android/ChatActivity.kt).

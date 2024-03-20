@@ -33,7 +33,8 @@ class WsClient(val client: HttpClient) {
             while (true) {
                 val frame = session?.incoming?.receive()
                 if (frame is Frame.Text) {
-                    onReceive(frame.readText())
+                    val message = frame.readText()
+                    onReceive(message)
                 }
             }
         }

@@ -12,7 +12,7 @@ fun main() {
         ChatConnHandler.initConnection(
             this,
             wsClient = wsClientJs,
-            writeMessage = DomHandler::appendMessage
+            appendMessage = DomHandler::appendMessage
         )
     }
     DomHandler.setupEventListeners(wsClientJs)
