@@ -1,7 +1,5 @@
 @file:Suppress("unused")
 
-package kjs
-
 import kotlin.js.json
 
 @OptIn(ExperimentalJsExport::class)

@@ -1,16 +1,9 @@
 plugins {
-    kotlin("js")
+    alias(libs.plugins.kotlinMultiplatform)
 }
 
 repositories {
     mavenCentral()
-}
-
-dependencies {
-    implementation(kotlin("stdlib-js"))
-    // Install npm dependencies
-    implementation(npm("randomstring", "1.3.0"))
-    implementation(npm("is-sorted", "1.0.5"))
 }
 
 kotlin {
@@ -23,5 +16,13 @@ kotlin {
         }
         // useCommonJs()
         useEsModules()
+    }
+
+    sourceSets {
+        jsMain {
+            dependencies {
+                implementation(kotlin("stdlib-js"))
+            }
+        }
     }
 }

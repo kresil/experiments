@@ -1,6 +1,4 @@
-import {
-    Person
-} from '../../../../build/js/packages/kresil-experiments-kotlin-js-interop/kotlin/kresil-experiments-kotlin-js-interop.mjs';
+import {Person} from 'k2j-kotlin-app';
 
 // Create an instance of Person
 const john = new Person('John');

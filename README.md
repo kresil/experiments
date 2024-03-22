@@ -28,6 +28,9 @@
         - [Requests](#requests)
         - [Responses](#responses)
     - [Demonstration](#demonstration-1)
+        - [Run Server](#run-server)
+        - [Javascript Client](#javascript-client)
+        - [Android Client](#android-client)
 
 ## Kotlin Multiplatform
 
@@ -173,7 +176,7 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[func-export.js](./kotlin-js-interop/src/main/js/func-export.mjs)
+[func-export.mjs](./kotlin-js-interop/src/main/js/func-export.mjs)
 
 </td>
 <td>
@@ -184,7 +187,7 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[file-export.js](./kotlin-js-interop/src/main/js/file-export.mjs)
+[file-export.mjs](./kotlin-js-interop/src/main/js/file-export.mjs)
 
 </td>
 <td>
@@ -243,7 +246,8 @@ external object RandomStringFromNpm {
 </table>
 
 > [!TIP]
-> To delegate default parameter value to the imported JavaScript function, use `definedExternally`.
+> To delegate default parameter value to the imported JavaScript function, use `definedExternally`. Only nullable types
+> can have default implementations declared.
 
 #### Build and Run
 
@@ -441,7 +445,7 @@ More examples [at](https://ktor.io/docs/response.html).
 
 ### Demonstration
 
-#### Server
+#### Run Server
 
 To start the server, run the following command:
 

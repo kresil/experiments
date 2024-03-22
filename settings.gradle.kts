@@ -17,5 +17,3 @@ dependencyResolutionManagement {
 rootProject.name = "kresil-experiments"
 include(":kmp")
 include(":ktor")
-include(":kotlin-js-interop")
-include(":android-app")

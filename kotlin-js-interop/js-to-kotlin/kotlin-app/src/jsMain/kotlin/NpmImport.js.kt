@@ -1,5 +1,3 @@
-package kjs
-
 @JsModule("randomstring")
 @JsNonModule
 external object RandomStringFromNpm {

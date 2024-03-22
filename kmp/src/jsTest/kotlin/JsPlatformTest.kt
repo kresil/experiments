@@ -1,14 +1,14 @@
 import target.Platform
 import target.PlatformType
 import target.Target
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.Assertions.assertEquals
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
-class JVMPlatformTest {
+class JsPlatformTest {
 
     @Test
     fun testTargetCorrespondsToCurrentPlatform() {
         val target = Target { Platform() }
-        assertEquals(PlatformType.JVM, target.getPlatform().type)
+        assertEquals(PlatformType.JS, target.getPlatform().type)
     }
 }

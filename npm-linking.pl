@@ -1,7 +1,14 @@
-# using npm link to link the kmp module to the consuming module
+# using npm-link to link the kmp module to the consuming module
 # Example:
 # - instead of: import {Adapter} from '../../../../build/js/packages/kresil-experiments-kmp/kotlin/kresil-experiments-kmp.mjs'
 # - we use: import {Adapter} from 'kresil-experiments-kmp'
+# Useful Commands:
+# $ npm ls --global
+# $ npm uninstall --global my-package
+# Inside the directory of the package that contains a package.json file:
+# $ npm link
+# Inside the directory of the package that will consume the package:
+# $ npm link my-package
 
 #!/usr/bin/perl
 
@@ -19,7 +26,13 @@ system("npm link");
 chdir("../../../../../..");
 
 # Go to the consuming module
-chdir("js-app/src/main/js/server.mjs");
+chdir("js-app/src/main/js");
 
 # Link the package to the consuming module
 system("npm link kresil-experiments-kmp");
+
+
+# more
+
+# ../../../../kotlin-app/build/js/packages/k2j-kotlin-app/kotlin/k2j-kotlin-app.mjs
+
