@@ -1,8 +1,8 @@
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Test
 import target.Platform
 import target.PlatformType
 import target.Target
-import org.junit.jupiter.api.Test
 
 class AndroidPlatformTest {
 

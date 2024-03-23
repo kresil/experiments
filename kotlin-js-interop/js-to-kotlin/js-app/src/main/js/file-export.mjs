@@ -1,12 +1,7 @@
-function greet(name) {
+export function greet(name) {
     return "Hello, " + name + "!";
 }
 
-function advocate(number) {
+export function advocate(number) {
     return "Kotlin advocate nr: " + number;
-}
-
-exports = {
-    greet,
-    advocate
 }

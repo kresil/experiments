@@ -1,4 +1,4 @@
-import {Person} from 'k2j-kotlin-app';
+import {Person} from 'k2j-kotlin-app/k2j-kotlin-app.mjs';
 
 // Create an instance of Person
 const john = new Person('John');

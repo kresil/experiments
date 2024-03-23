@@ -90,16 +90,16 @@ In the [KMP template](https://github.com/Kotlin/multiplatform-library-template) 
 the example with the `fibonacci` sequence was removed
 and replaced by a few examples to practice the `expect/actual` mechanism more thoroughly.
 
-This [addition](./kmp/src/commonMain/kotlin) follows the same principles:
+This [addition](./kmp/shared/src/commonMain/kotlin) follows the same principles:
 
-- **test common functionality** in [CommonTest](./kmp/src/commonTest/kotlin);
+- **test common functionality** in [CommonTest](./kmp/shared/src/commonTest/kotlin);
 - **test platform-specific functionality** in each platform's test source set (`<Platform>Test`)
 
 To run the tests for all supported targets, use the command:
 
 ```bash
 # from root or within a run configuration 
-./gradlew :kmp:cleanAllTests :kmp:allTests --rerun-tasks
+./gradlew :kmp:shared:cleanAllTests :kmp:allTests --rerun-tasks
 ```
 
 ### Intermediate Source Sets
@@ -127,21 +127,18 @@ directly support _KMP_ and
 _Kotlin_ in general.
 
 For demonstration purposes,
-a pure [JS application](./js-app/src/main/js/server.mjs) was created
-to call the [adapter](./kmp/src/jsMain/kotlin/Adapter.js.kt)
+a pure [JS application](kmp/js-app/src/main/js/server.mjs) was created
+to call the [adapter](./kmp/shared/src/jsMain/kotlin/Adapter.js.kt)
 defined in the `JsMain` _sorceset_ of the `kmp` module,
 essentially acting as a consumer.
 
 #### Build and Run
 
-```bash
-# from root
-./gradlew kmp:jsNodeDevelopment
-```
+Execute the perl [script](kmp/npm-link-script.pl) to link local dependencies in this project.
 
 ```bash
 # from root
-node js-app/src/main/js/server.mjs
+node kmp/js-app/src/main/js/server.mjs
 # take a look at the express paths and PORT configured in the server
 # open an HTTP client and access http://localhost:PORT
 ```
@@ -176,23 +173,23 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[func-export.mjs](./kotlin-js-interop/src/main/js/func-export.mjs)
+[func-export.mjs](./kotlin-js-interop/js-to-kotlin/js-app/src/main/js/func-export.mjs)
 
 </td>
 <td>
 
-[jsFuncImport.kt](./kotlin-js-interop/src/main/kotlin/kjs/jsFuncImport.kt)
+[FuncImport.js.kt](./kotlin-js-interop/js-to-kotlin/kotlin-app/src/jsMain/kotlin/FuncImport.js.kt)
 
 </tr>
 <tr>
 <td>
 
-[file-export.mjs](./kotlin-js-interop/src/main/js/file-export.mjs)
+[file-export.mjs](./kotlin-js-interop/js-to-kotlin/js-app/ src/main/js/file-export.mjs)
 
 </td>
 <td>
 
-[jsFileImport.kt](/kotlin-js-interop/src/main/kotlin/kjs/jsFileImport.kt)
+[FileImport.js.kt](./kotlin-js-interop/js-to-kotlin/kotlin-app/src/jsMain/kotlin/FileImport.js.kt)
 
 </td>
 </tr>
@@ -247,7 +244,7 @@ external object RandomStringFromNpm {
 
 > [!TIP]
 > To delegate default parameter value to the imported JavaScript function, use `definedExternally`. Only nullable types
-> can have default implementations declared.
+> can have default implementations declared externally.
 
 #### Build and Run
 
@@ -267,21 +264,23 @@ external object RandomStringFromNpm {
 <tr>
 <td>
 
-[Person.kt](./kotlin-js-interop/src/main/kotlin/kjs/Person.kt)
+[Person.kt](./kotlin-js-interop/kotlin-to-js/kotlin-app/src/jsMain/kotlin/Person.kt)
 
 </td>
 <td>
 
-[importing.js](./kotlin-js-interop/src/main/js/importing.mjs)
+[importing.mjs](./kotlin-js-interop/kotlin-to-js/js-app/src/main/js/importing.mjs)
 
 </td>
 </table>
 
 #### Run
 
+Execute the perl [script](kotlin-js-interop/kotlin-to-js/npm-link-script.pl) to link local dependencies in this project.
+
 ```bash
 # from root
-node kotlin-js-interop/src/main/js/importing.mjs
+node kotlin-js-interop/kotlin-to-js/js-app/src/main/js/importing.mjs
 ```
 
 ### References
@@ -454,14 +453,14 @@ To start the server, run the following command:
 ./gradlew ktor:backendJvmRun -DmainClass=MainKt --quiet
 ```
 
-Code at [Main.kt](./ktor/src/backendJvmMain/kotlin/Main.kt).
-Static files at [resources](./ktor/src/backendJvmMain/resources/web).
+Code at [Main.kt](./ktor/shared/src/backendJvmMain/kotlin/Main.kt).
+Static files at [resources](./ktor/shared/src/backendJvmMain/resources/web).
 
 #### Javascript Client
 
 In any http client, access `http://localhost:8080` and interact with the UI.
 
-Code at [frontendJs](./ktor/src/frontendJsMain/kotlin).
+Code at [frontendJs](./ktor/shared/src/frontendJsMain/kotlin).
 
 #### Android Client
 
@@ -472,8 +471,8 @@ ngrok http http://localhost:8080
 ```
 
 Grab the url string and replace the `host` parameter in
-the [android-config](ktor/src/frontendAndroidMain/kotlin/config/Config.android.kt) file.
+the [android-config](ktor/shared/src/frontendAndroidMain/kotlin/config/Config.android.kt) file.
 
 Run the application on an emulator or physical device.
 
-Code at [android-app](./android-app/src/main/java/android/ChatActivity.kt).
+Code at [android-app](ktor/android-app/src/main/java/android/ChatActivity.kt).

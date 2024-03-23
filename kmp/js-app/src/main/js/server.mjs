@@ -1,6 +1,6 @@
 `use strict`
 
-import {Adapter} from 'kresil-experiments-kmp'
+import {Adapter} from 'kresil-experiments-kmp-library'
 import express from 'express'
 
 const app = express()

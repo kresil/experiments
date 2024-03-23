@@ -1,5 +1,4 @@
 pluginManagement {
-    includeBuild("convention-plugins")
     repositories {
         google()
         mavenCentral()
@@ -8,6 +7,13 @@ pluginManagement {
 }
 
 dependencyResolutionManagement {
+    dependencyResolutionManagement {
+        versionCatalogs {
+            create("libs") {
+                from(files("../gradle/libs.versions.toml"))
+            }
+        }
+    }
     @Suppress("UnstableApiUsage")
     repositories {
         google()
@@ -15,5 +21,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "kresil-experiments"
-include(":kmp:shared")
+rootProject.name = "ktor"
+
+include(":shared")
+include(":android-app")

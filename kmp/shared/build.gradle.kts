@@ -140,7 +140,3 @@ tasks.withType<AbstractTestTask> {
     }
 }
 
-tasks.named("allTests") {
-    dependsOn("cleanTestDebugUnitTest")
-    finalizedBy("cleanAllTests")
-}

@@ -1,9 +1,14 @@
 plugins {
-    /*alias(libs.plugins.androidApplication)
-    alias(libs.plugins.kotlinAndroid)*/
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.kotlinAndroid)
     // workaround:
-    id(libs.plugins.androidApplication.get().pluginId)
-    id(libs.plugins.kotlinAndroid.get().pluginId)
+    // id(libs.plugins.androidApplication.get().pluginId)
+    // id(libs.plugins.kotlinAndroid.get().pluginId)
+}
+
+repositories {
+    mavenCentral()
+    google()
 }
 
 android {
@@ -47,6 +52,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(project(":ktor"))
+    implementation(project(":shared"))
     debugImplementation(libs.compose.ui.tooling)
 }
