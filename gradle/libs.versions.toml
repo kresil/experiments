@@ -4,13 +4,14 @@ kotlin = "1.9.20"
 coroutines = "1.8.0"
 ktor = "2.3.9"
 nexus-publish = "2.0.0-rc-1"
-# android-minSdk = "24"
-# android-compileSdk = "33"
+android-minSdk = "24"
+android-compileSdk = "33"
 compose = "1.6.3"
-# compose-compiler = "1.5.4"
+compose-compiler = "1.5.4"
 compose-material3 = "1.2.1"
 androidx-activityCompose = "1.8.2"
 kotlinx-serialization = "1.6.3"
+resilience4j = "2.2.0"
 
 [libraries]
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
@@ -26,9 +27,11 @@ ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 # kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+resilience4j-retry = { module = "io.github.resilience4j:resilience4j-retry", version = "resilience4j" }
 
 [plugins]
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+kotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

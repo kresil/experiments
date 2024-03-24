@@ -31,6 +31,7 @@
         - [Run Server](#run-server)
         - [Javascript Client](#javascript-client)
         - [Android Client](#android-client)
+- [Resilience4j](#resilience4j)
 
 ## Kotlin Multiplatform
 
@@ -184,7 +185,7 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[file-export.mjs](./kotlin-js-interop/js-to-kotlin/js-app/ src/main/js/file-export.mjs)
+[file-export.mjs](./kotlin-js-interop/js-to-kotlin/js-app/src/main/js/file-export.mjs)
 
 </td>
 <td>
@@ -250,7 +251,8 @@ external object RandomStringFromNpm {
 
 ```bash
 # from root
-./gradlew kotlin-js-interop:nodeDevelopmentRun
+cd kotlin-js-interop/js-to-kotlin
+./gradlew allTests
 ```
 
 ### Kotlin to Javascript
@@ -476,3 +478,14 @@ the [android-config](ktor/shared/src/frontendAndroidMain/kotlin/config/Config.an
 Run the application on an emulator or physical device.
 
 Code at [android-app](ktor/android-app/src/main/java/android/ChatActivity.kt).
+
+## Resilience4j
+
+> [Resilience4j](https://resilience4j.readme.io/docs) is a fault tolerance library designed for Java8 and functional
+> programming.
+
+Module: [resilience4j](./resilience4j)
+
+TODO("separate each section into its own file under the corresponding module.")
+
+
