@@ -1,10 +1,10 @@
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 
 plugins {
+    id("module.publication")
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
-    id("module.publication")
-    kotlin("plugin.serialization") version "1.9.22"
+    alias(libs.plugins.kotlinxSerialization)
 }
 
 repositories {
@@ -14,7 +14,7 @@ repositories {
 }
 
 kotlin {
-    // applyDefaultHierarchyTemplate()
+    // applyDefaultHierarchyTemplate(), explicitly setting the hierarchy for learning purposes
     jvm()
     androidTarget {
         // Needed for the Android library artifact to be published
@@ -29,7 +29,6 @@ kotlin {
         binaries.executable() // necessary for the IR compiler
         useEsModules() // or useCommonJs()
         browser {
-
         }
         nodejs {
         }
@@ -70,7 +69,7 @@ kotlin {
         // use `by creating` if a source set does not exist yet
         val commonMain by getting {
             dependencies {
-                // put your multiplatform dependencies here
+                implementation(libs.kotlinx.serialization.json)
             }
         }
         val commonTest by getting {
@@ -100,15 +99,13 @@ kotlin {
         val jsMain by getting {
             dependsOn(commonMain)
             dependencies {
-                implementation(kotlin("stdlib-js"))
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
-                // implementation(npm("randomstring", "1.3.0"))
+                implementation(libs.kotlin.stdlib.js)
             }
         }
         val jsTest by getting {
             dependsOn(commonTest)
             dependencies {
-                implementation(kotlin("test-js"))
+                implementation(libs.kotlin.stdlib.test.js)
             }
         }
 

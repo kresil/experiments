@@ -91,9 +91,9 @@ In the [KMP template](https://github.com/Kotlin/multiplatform-library-template) 
 the example with the `fibonacci` sequence was removed
 and replaced by a few examples to practice the `expect/actual` mechanism more thoroughly.
 
-This [addition](./kmp/shared/src/commonMain/kotlin) follows the same principles:
+This [addition](./kmp/lib/src/commonMain/kotlin) follows the same principles:
 
-- **test common functionality** in [CommonTest](./kmp/shared/src/commonTest/kotlin);
+- **test common functionality** in [CommonTest](./kmp/lib/src/commonTest/kotlin);
 - **test platform-specific functionality** in each platform's test source set (`<Platform>Test`)
 
 To run the tests for all supported targets, use the command:
@@ -128,18 +128,18 @@ directly support _KMP_ and
 _Kotlin_ in general.
 
 For demonstration purposes,
-a pure [JS application](kmp/js-app/src/main/js/server.mjs) was created
-to call the [adapter](./kmp/shared/src/jsMain/kotlin/Adapter.js.kt)
+a pure [JS application](kmp/apps/js-app/src/server.mjs) was created
+to call the [adapter](./kmp/lib/src/jsMain/kotlin/Adapter.js.kt)
 defined in the `JsMain` _sorceset_ of the `kmp` module,
 essentially acting as a consumer.
 
 #### Build and Run
 
-Execute the perl [script](kmp/npm-link-script.pl) to link local dependencies in this project.
+Execute the perl [script](kmp/apps/js-app/npm-link-script.pl) to link local dependencies in this project.
 
 ```bash
-# from root
-node kmp/js-app/src/main/js/server.mjs
+# from #
+node kmp/apps/js-app/src/server.mjs
 # take a look at the express paths and PORT configured in the server
 # open an HTTP client and access http://localhost:PORT
 ```
