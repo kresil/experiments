@@ -174,7 +174,7 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[func-export.mjs](./kotlin-js-interop/js-to-kotlin/js-app/src/main/js/func-export.mjs)
+[func-export.mjs](kotlin-js-interop/js-to-kotlin/js-app/src/func-export.mjs)
 
 </td>
 <td>
@@ -185,7 +185,7 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[file-export.mjs](./kotlin-js-interop/js-to-kotlin/js-app/src/main/js/file-export.mjs)
+[file-export.mjs](kotlin-js-interop/js-to-kotlin/js-app/src/file-export.mjs)
 
 </td>
 <td>
@@ -271,7 +271,7 @@ cd kotlin-js-interop/js-to-kotlin
 </td>
 <td>
 
-[importing.mjs](./kotlin-js-interop/kotlin-to-js/js-app/src/main/js/importing.mjs)
+[person-test.mjs](kotlin-js-interop/kotlin-to-js/js-app/src/person-test.mjs)
 
 </td>
 </table>
@@ -282,7 +282,7 @@ Execute the perl [script](kotlin-js-interop/kotlin-to-js/npm-link-script.pl) to 
 
 ```bash
 # from root
-node kotlin-js-interop/kotlin-to-js/js-app/src/main/js/importing.mjs
+node kotlin-js-interop/kotlin-to-js/js-app/src/main/js/person-test.mjs
 ```
 
 ### References
@@ -455,14 +455,14 @@ To start the server, run the following command:
 ./gradlew ktor:backendJvmRun -DmainClass=MainKt --quiet
 ```
 
-Code at [Main.kt](./ktor/shared/src/backendJvmMain/kotlin/Main.kt).
-Static files at [resources](./ktor/shared/src/backendJvmMain/resources/web).
+Code at [Main.kt](ktor/lib/src/backendJvmMain/kotlin/Main.kt).
+Static files at [resources](ktor/lib/src/backendJvmMain/resources/web).
 
 #### Javascript Client
 
 In any http client, access `http://localhost:8080` and interact with the UI.
 
-Code at [frontendJs](./ktor/shared/src/frontendJsMain/kotlin).
+Code at [frontendJs](ktor/lib/src/frontendJsMain/kotlin).
 
 #### Android Client
 
@@ -473,11 +473,11 @@ ngrok http http://localhost:8080
 ```
 
 Grab the url string and replace the `host` parameter in
-the [android-config](ktor/shared/src/frontendAndroidMain/kotlin/config/Config.android.kt) file.
+the [android-config](ktor/lib/src/frontendAndroidMain/kotlin/config/Config.android.kt) file.
 
 Run the application on an emulator or physical device.
 
-Code at [android-app](ktor/android-app/src/main/java/android/ChatActivity.kt).
+Code at [android-app](ktor/apps/android-app/src/main/java/android/ChatActivity.kt).
 
 ## Resilience4j
 

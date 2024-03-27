@@ -52,6 +52,6 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(project(":shared"))
+    implementation(project(":lib"))
     debugImplementation(libs.compose.ui.tooling)
 }

@@ -23,5 +23,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "ktor"
 
-include(":shared")
-include(":android-app")
+include(":lib")
+include(":apps:android-app")

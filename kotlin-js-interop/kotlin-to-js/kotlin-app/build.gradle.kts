@@ -21,7 +21,7 @@ kotlin {
     sourceSets {
         jsMain {
             dependencies {
-                implementation(kotlin("stdlib-js"))
+                implementation(libs.kotlin.stdlib.js)
             }
         }
     }

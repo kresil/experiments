@@ -6,29 +6,25 @@ import kotlin.js.json
 @JsExport
 class Person(private val name: String) {
 
-    fun hello() {
-        println("Hello $name!")
-    }
+    fun hello() : String = "Hello $name!"
 
     @JsName("helloWithGreeting")
-    fun hello(greeting: String) {
-        println("$greeting $name!")
-    }
+    fun hello(greeting: String) = "$greeting $name!"
 
     fun useConsole() {
         console.log("Hello $name!")
     }
 
-    fun toJson() {
+    fun toJson(): String {
         val o = json(
             "name" to "John",
             "age" to 42,
         )
         // {"name":"John","age":42}
-        println(JSON.stringify(o))
+        return JSON.stringify(o)
     }
 
-    fun accessJsonProps() {
+    fun accessJsonProps(): dynamic {
         /**
          * The result of js is dynamic, which is a special type for Kotlin/JS
          * that is not checked by the compiler and represents any JavaScript value.
@@ -36,10 +32,7 @@ class Person(private val name: String) {
          * and cast it to any type.
          */
         val o: dynamic = js("{name: 'John', surname: 'Foo'}")
-        println(o.name) // John
-        println(o.surname) // Foo
-        println(o.toLocaleString()) // [object Object]
-        println(o.unknown) // undefined
+        return o
     }
 
 }

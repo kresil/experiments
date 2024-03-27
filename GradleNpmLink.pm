@@ -3,15 +3,16 @@ use strict;
 use warnings FATAL => 'all';
 use Cwd;
 
-# Defines a script for using npm-link to link a local output package to a consuming module
-# Useful Commands:
-# $ npm ls --global
-# $ npm uninstall --global my-package
+# Defines a script for using npm-link in order to link a local output package to
+# a consuming module without publishing it to npm.
 # Inside the directory of the package that contains a package.json file:
 # $ npm link
 # Inside the directory of the package where the package.json file is that will consume the package:
 # $ npm link my-package
-# Use case in ES6:
+# Useful Commands:
+# $ npm ls --global
+# $ npm uninstall --global my-package
+# Use case in ES6>
 # - instead of: import {Adapter} from '../../../../build/js/packages/kresil-experiments-kmp/kotlin/kresil-experiments-kmp.mjs'
 # - we use: import {Adapter} from 'kresil-experiments-kmp'
 
@@ -22,7 +23,7 @@ sub println {
     print "$msg\n";
 }
 
-sub cdprint {
+sub currDirPrint {
     my @parms = @_;
     my $dir_name = $parms[0];
     my $dir = cwd();
@@ -34,7 +35,7 @@ sub chdirAndPrintCurrent {
     my $dir = $parms[0];
     my $dir_name = $parms[1];
     chdir($dir) or die "Can't change to $dir_name directory: $!";
-    cdprint($dir_name);
+    currDirPrint($dir_name);
 }
 
 sub execute {
@@ -44,14 +45,16 @@ sub execute {
     my $project_gradlew_root_dir = $args{project_gradlew_root_dir};
     my $gradle_task_name_for_js_export = $args{gradle_task_name_for_js_export};
     my $output_from_gradlew_root_dir = $args{output_from_gradlew_root_dir};
-    my $go_to_root_from_output_dir = $args{go_to_root_from_output_dir};
+    my $go_to_project_root_from_output_dir = $args{go_to_project_root_from_output_dir};
     my $output_package_json_name = $args{output_package_json_name};
     my $consumer_from_gradlew_root_dir = $args{consumer_from_gradlew_root_dir};
+    my $project_root = "project_root";
 
     println("Starting npm linking process...");
+    currDirPrint("script");
 
     # Go to the root directory to access gradle wrapper
-    chdirAndPrintCurrent($project_gradlew_root_dir, "root-gradlew");
+    chdirAndPrintCurrent($project_gradlew_root_dir, $project_root);
 
     # Run Gradle task to generate the JS files
     system("gradlew $gradle_task_name_for_js_export");
@@ -62,7 +65,7 @@ sub execute {
     println("Producer npm link executed successfully...");
 
     # Go back to root
-    chdirAndPrintCurrent($go_to_root_from_output_dir, "root");
+    chdirAndPrintCurrent($go_to_project_root_from_output_dir, $project_root);
 
     # Go to the consumer directory
     chdirAndPrintCurrent($consumer_from_gradlew_root_dir, "consumer");
@@ -70,6 +73,9 @@ sub execute {
     println("Consumer npm link executed successfully...");
 
     # confirm npm link addition with : $ npm ls --global
+    println("Current npm link status:");
+    system("npm ls --global");
+    println("To uninstall malformed link use: \$ npm uninstall --global $output_package_json_name");
 }
 
 1; # because the require or use expects a true return value, this one is

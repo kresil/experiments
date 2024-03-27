@@ -48,7 +48,7 @@ kotlin {
     nativeTarget.apply {
         binaries {
             executable {
-                entryPoint = "main"
+                // entryPoint = "main"
             }
         }
     }
