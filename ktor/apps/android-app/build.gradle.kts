@@ -1,9 +1,6 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
-    // workaround:
-    // id(libs.plugins.androidApplication.get().pluginId)
-    // id(libs.plugins.kotlinAndroid.get().pluginId)
 }
 
 repositories {
@@ -13,10 +10,10 @@ repositories {
 
 android {
     namespace = "kresil.experiments.android"
-    compileSdk = 34
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
         applicationId = "kresil.experiments.android"
-        minSdk = 25
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"

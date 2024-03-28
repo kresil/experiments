@@ -45,13 +45,13 @@ kotlin {
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
 
-    nativeTarget.apply {
+    /*nativeTarget.apply {
         binaries {
             executable {
-                // entryPoint = "main"
+                entryPoint = "main"
             }
         }
-    }
+    }*/
 
     sourceSets {
         /**
@@ -105,7 +105,7 @@ kotlin {
         val jsTest by getting {
             dependsOn(commonTest)
             dependencies {
-                implementation(libs.kotlin.stdlib.test.js)
+                implementation(libs.kotlin.test.js)
             }
         }
 

@@ -22,14 +22,14 @@ kotlin {
     sourceSets {
         jsMain {
             dependencies {
-                implementation(kotlin("stdlib-js"))
+                implementation(libs.kotlin.stdlib.js)
                 implementation(npm("randomstring", "1.3.0"))
                 implementation(npm("is-sorted", "1.0.5"))
             }
         }
         jsTest {
             dependencies {
-                implementation(kotlin("test-js"))
+                implementation(libs.kotlin.test.js)
             }
         }
     }

@@ -1,5 +1,5 @@
-@file:JsModule("../../../../js-app/src/main/js/file-export.mjs")
-// @file:JsNonModule
+@file:JsModule("../../../../js-app/src/file-export.mjs")
+@file:JsNonModule
 
 // defined in external javascript file
 external fun greet(name: String): String

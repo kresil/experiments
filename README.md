@@ -100,7 +100,7 @@ To run the tests for all supported targets, use the command:
 
 ```bash
 # from root or within a run configuration 
-./gradlew :kmp:shared:cleanAllTests :kmp:allTests --rerun-tasks
+./gradlew :kmp:lib:cleanAllTests :kmp:lib:allTests --rerun-tasks
 ```
 
 ### Intermediate Source Sets
@@ -174,7 +174,7 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[func-export.mjs](kotlin-js-interop/js-to-kotlin/js-app/src/func-export.mjs)
+[func-export.mjs](kotlin-js-interop/js-to-kotlin/kotlin-app/src/jsMain/resources/js-app/src/func-export.mjs)
 
 </td>
 <td>
@@ -185,7 +185,7 @@ Module: [kotlin-js-interop](./kotlin-js-interop)
 <tr>
 <td>
 
-[file-export.mjs](kotlin-js-interop/js-to-kotlin/js-app/src/file-export.mjs)
+[file-export.mjs](kotlin-js-interop/js-to-kotlin/kotlin-app/src/jsMain/resources/js-app/src/file-export.mjs)
 
 </td>
 <td>
