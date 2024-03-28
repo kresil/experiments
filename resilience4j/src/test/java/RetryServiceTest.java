@@ -2,9 +2,7 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.junit.jupiter.api.Test;
-
 import java.util.function.Function;
-
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.*;
 
