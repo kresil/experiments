@@ -9,7 +9,9 @@ repositories {
 }
 
 dependencies {
-    implementation(libs.resilience4j.retry)
+    testImplementation(libs.resilience4j.retry)
+    testImplementation(libs.resilience4j.kotlin)
+    testImplementation(libs.kotlinx.coroutines.core)
     testImplementation(libs.mockito.core)
     testImplementation(libs.kotlin.test.junit5)
     testImplementation(libs.junit.jupiter.engine)

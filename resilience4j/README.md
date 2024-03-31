@@ -14,9 +14,17 @@
    - [Events](#events)
      - [Mechanism](#mechanism)
      - [Registry](#registry)
-   - [Async vs Sync](#async-vs-sync)
+   - [Context](#context)
+     - [Synchronous](#synchronous)
+     - [Asynchronous](#asynchronous)
+   - [Kotlin Module](#kotlin-module)
+     - [Configuration](#configuration-1)
+     - [Decorators](#decorators-1)
+     - [Flow](#flow)
 
 ## Retry
+
+TODO: Add server and downstream retry drawing
 
 [Main Implementation Module](https://github.com/resilience4j/resilience4j/blob/master/resilience4j-retry/src/main/java/io/github/resilience4j/retry/internal/RetryImpl.java)
 
@@ -69,7 +77,7 @@
     </tr>
 </table>
 
-From: [Retry](https://resilience4j.readme.io/docs/retry#create-and-configure-retry)
+From: [Resilience4j Retry Docs](https://resilience4j.readme.io/docs/retry#create-and-configure-retry)
 
 > [!IMPORTANT]   
 > In the <code>Retry</code> configuration the <code>intervalFunction</code> and <code>intervalBiFunction</code> are
@@ -96,6 +104,17 @@ Or using default configuration:
 RetryConfig config = RetryConfig.ofDefaults();
 ```
 
+Or by using a base configuration:
+
+```java
+RetryConfig baseConfig = RetryConfig.custom()
+  .maxAttempts(2)
+  .waitDuration(Duration.ofMillis(1000))
+  .build();
+
+RetryConfig config = RetryConfig.from(baseConfig);
+```
+
 ### Registry
 
 A register is used to store and manage multiple `Retry` instances. In the registry, the `Retry` instances are identified by a name.
@@ -116,6 +135,8 @@ Retry retry = Retry.of("name", config);
 This module also provides an in-memory implementation of the `RetryRegistry`.
 
 ### States
+
+TODO: Add connections between states and transitions
 
 The `Retry` mechanism has the following states:
 
@@ -146,15 +167,15 @@ And checked variants provided by the library, which wrap unchecked exceptions th
 
 Associated with a given high-order function, there is also the capability to:
 - `recover`: Provides a function to handle exceptions or errors that might occur during the execution of the high-order function. This recovery mechanism allows the program to gracefully handle errors and continue execution;
-- `andThen`: This function enables chaining operations after the execution of the high-order function. It acts similar to a [flatmap](https://dzone.com/articles/understanding-flatmap) operation in functional programming, where the result of the first operation is passed as input to the next operation, allowing for sequential composition of functions and without multiple wrapping of the result.
-
-```java
-Retry retry = Retry.of("name", config);
-CheckedSupplier<String> retryableSupplier = Retry
+    ```java
+    Retry retry = Retry.of("name", config);
+    CheckedSupplier<String> retryableSupplier = Retry
         .decorateCheckedSupplier(retry, remoteService::message);
-Try<String> result = Try.of(retryableSupplier)
+    Try<String> result = Try.of(retryableSupplier)
         .recover(throwable -> "Hello from recovery");
-```
+    ```
+  
+- `andThen`: This function enables chaining operations after the execution of the high-order function. It acts similar to a [flatmap](https://dzone.com/articles/understanding-flatmap) operation in functional programming, where the result of the first operation is passed as input to the next operation, allowing for sequential composition of functions and without multiple wrapping of the result.
 
 ### Interval Functions
 
@@ -219,7 +240,7 @@ registry.getEventPublisher()
   });
 ```
 
-### Async vs Sync
+### Context
 
 The `Retry` instance can be used in both synchronous and asynchronous contexts,
 which abide by the following interfaces, respectively:
@@ -243,4 +264,61 @@ public interface AsyncContext<T> {
     long onError(Throwable throwable);
     long onResult(T result);
 }
+```
+
+### Kotlin Module
+
+#### Configuration
+
+Since Kotlin is interoperable with Java,
+the configuration can be done in the same way but with a more concise syntax and utilizing [trailing lambdas](https://kotlinlang.org/docs/lambdas.html#passing-trailing-lambdas).
+
+```kotlin
+val configName = "config"
+val retryRegistry = RetryRegistry {
+    addRetryConfig(configName) {
+        maxAttempts(4)
+        waitDuration(Duration.ofMillis(10))
+    }
+}
+
+val retry = retryRegistry.retry("retry", configName)
+```
+
+#### Decorators
+
+As mentioned in the [context](#context) section, this module provides decorators for both synchronous and asynchronous contexts.
+
+```kotlin
+runBlocking {
+    retry.executeSuspendFunction {
+        remoteService.suspendCall()
+        // ... suspend functions
+    }
+    // or retry.decorateSuspendFunction { ... } and call it later
+}
+```
+
+```kotlin
+retry.executeFunction {
+    remoteService.blockingCall()
+}
+// or retry.decorateFunction { ... } and call it later
+```
+
+#### Flow
+
+The library also provides several extensions for the asynchronous primitive [Flow](https://kotlinlang.org/docs/flow.html)
+to work with all provided mechanisms.
+Such extensions are not terminal operators and can be chained with others.
+
+```kotlin
+val retry = Retry.ofDefaults()
+val rateLimiter = RateLimiter.ofDefaults()
+  
+flowOf(1, 2, 3)
+  .rateLimiter(rateLimiter)
+  .map { it * 2 }
+  .retry(retry)
+  .collect { println(it) } // terminal operator
 ```
