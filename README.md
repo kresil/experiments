@@ -7,4 +7,5 @@
 - 🛠️ [Kotlin Multiplatform](kmp/README.md)
 - 🌐 [Kotlin-Js Interop](kotlin-js-interop/README.md)
 - ⚙️ [Ktor Framework](ktor/README.md)
+- 🔄 [Ktor Retry Plugin](ktor-retry-plugin/README.md)
 - 🛡️ [Resilience4j](resilience4j/README.md) 
