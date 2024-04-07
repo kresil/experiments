@@ -63,7 +63,7 @@ kotlin {
         val backendJvmTest by getting {
             dependsOn(commonTest)
             dependencies {
-                implementation(libs.ktor.server.test.host)
+                implementation(libs.ktor.server.testhost)
                 implementation(libs.ktor.client.websockets)
             }
         }
