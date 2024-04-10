@@ -117,26 +117,31 @@ RetryConfig config = RetryConfig.from(baseConfig);
 
 ### Registry
 
-A register is used to store and manage multiple `Retry` instances. In the registry, the `Retry` instances are identified by a name.
+The registry is essentially a `getOrCreate` factory method for `Retry` instances.
+Its function is to manage (i.e., perform CRUD operations) and to store:
+- a collection of `Retry` instances using their designated names as unique identifiers;
+- a collection of `RetryConfig` instances using their designated names as unique identifiers. 
 
-Register a `Retry` instance in the `RetryRegistry` with a configuration:
+To register a `Retry` instance in the `RetryRegistry` with a configuration use:
 
 ```java
 RetryRegistry registry = RetryRegistry.of(config);
 Retry retry = registry.retry("name");
 ```
 
-Or: 
+Or without a registry with:
 
 ```java
 Retry retry = Retry.of("name", config);
 ```
 
-This module also provides an in-memory implementation of the `RetryRegistry`.
+> [!IMPORTANT]
+> A single <codeRetry</code> instance can be used to decorate multiple [decorators](#decorators)
+> because internally it creates a new <code>Retry</code> [context](https://stackoverflow.com/questions/64052854/resilience4j-new-instance-of-retry-or-retrieve-from-retryregistry) per subscription.
 
 ### States
 
-TODO: Add connections between states and transitions
+TODO: Add connections between states (transitions)
 
 The `Retry` mechanism has the following states:
 
@@ -144,10 +149,11 @@ The `Retry` mechanism has the following states:
 |:------------------------------------------------------------------------:|
 |                               Retry States                               |
 
-- `RETRY`: The retry is in progress;
-- `ERROR`: The retry has failed (e.g., the max attempts were reached);
-- `SUCCESS`: The retry has succeeded;
-- `IGNORED_ERROR`: The retry has failed, but the exception was ignored as it belongs to the `ignoreExceptions` list.
+When a retry is attempted, the following events can be triggered as a result:
+- `RETRY`: The retry failed, but there are favorable conditions to trigger another retry attempt;
+- `ERROR`: The retry failed, but there are no favorable conditions to trigger another retry attempt (e.g., the maximum number of attempts was reached);
+- `SUCCESS`: The retry was successful and thus the next retry attempt is not triggered;
+- `IGNORED_ERROR`: The retry failed because the exception is in `ignoreExceptions` list and thus the next retry attempt is not triggered.
 
 ### Decorators
 
@@ -184,26 +190,26 @@ and is called for every retry attempt.
 
 A few examples:
 
-1. Fixed wait interval
+1. **Fixed wait interval**
     ```java    
     // using defaults
     IntervalFunction defaultWaitInterval = IntervalFunction.ofDefaults();
     // or explicitly
     IntervalFunction fixedWaitInterval = IntervalFunction.of(Duration.ofSeconds(5));
     ```
-2. Exponential backoff
+2. **Exponential backoff**
     ```java
     // using defaults
     IntervalFunction intervalWithExponentialBackoff = IntervalFunction.ofExponentialBackoff();
     // or explicitly (initial interval [ms], multiplier)
     IntervalFunction intervalWithExponentialBackoff = IntervalFunction.ofExponentialBackoff(100, 2);
     ```
-3. Randomized
+3. **Randomized**
     ```java
     IntervalFunction randomWaitInterval = IntervalFunction.ofRandomized();
     ```
    
-4. Custom
+4. **Custom**
     ```java
     IntervalFunction customIntervalFunction =
                 IntervalFunction.of(1000, nrOfAttempts -> nrOfAttempts + 1000);
@@ -215,6 +221,8 @@ An `EventPublisher` is used
 to register event listeners in both the underlying retry mechanism and the registry where the registered retries are stored.
 
 #### Mechanism
+
+See [states](#states) for the possible `RetryEvent` types.
 
 ```java
 Retry retry = Retry.of("name", config);
@@ -271,7 +279,7 @@ public interface AsyncContext<T> {
 #### Configuration
 
 Since Kotlin is interoperable with Java,
-the configuration can be done in the same way but with a more concise syntax and utilizing [trailing lambdas](https://kotlinlang.org/docs/lambdas.html#passing-trailing-lambdas).
+the configuration can be done in the same way but with a more concise syntax which uses [trailing lambdas](https://kotlinlang.org/docs/lambdas.html#passing-trailing-lambdas).
 
 ```kotlin
 val configName = "config"
