@@ -8,9 +8,12 @@ import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.retry.RetryRegistry;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;import org.mockito.stubbing.Answer;import service.RemoteService;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+import service.RemoteService;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
@@ -105,7 +108,7 @@ public class RetryServiceTest {
         // and: each event is configured with a logger
         logAllRetryEvents(retry);
 
-        // and: a service is decorated with the retry mechanism
+        // when: a service is decorated with the retry mechanism
         RemoteService service = mock(RemoteService.class);
         Function<Integer, Void> decorated
                 = Retry.decorateFunction(retry, (Integer s) -> {
@@ -147,7 +150,7 @@ public class RetryServiceTest {
         // and: each event is configured with a logger
         logAllRetryEvents(retry);
 
-        // and: a service is decorated with the retry mechanism
+        // when: a service is decorated with the retry mechanism
         RemoteService service = mock(RemoteService.class);
         Function<Integer, Void> decorated
                 = Retry.decorateFunction(retry, (Integer s) -> {
@@ -236,7 +239,7 @@ public class RetryServiceTest {
         Retry retry = Retry.of("somename", config);
 
         // and: a retry list to store the retry event
-        List<Type> retryEvents = new java.util.ArrayList<>();
+        List<Type> retryEvents = new ArrayList<>();
 
         // and: a set of listeners are registered to log all retry events
         retry.getEventPublisher()
@@ -262,7 +265,7 @@ public class RetryServiceTest {
                     retryEvents.add(type);
                 });
 
-        // and: a service is decorated with the retry mechanism
+        // when: a service is decorated with the retry mechanism
         RemoteService service = mock(RemoteService.class);
         Function<Integer, Void> decorated
                 = Retry.decorateFunction(retry, (Integer s) -> {
@@ -294,6 +297,7 @@ public class RetryServiceTest {
         retryEvents.clear();
         when(service.process(anyInt())).then(new Answer<Integer>() {
             private int count = 0;
+
             public Integer answer(InvocationOnMock invocation) {
                 if (count++ < 2) {
                     throw new WebServiceException("BAM!");
@@ -323,6 +327,7 @@ public class RetryServiceTest {
         retryEvents.clear();
         when(service.process(anyInt())).then(new Answer<Integer>() {
             private int count = 0;
+
             public Integer answer(InvocationOnMock invocation) {
                 if (count++ < 2) {
                     throw new WebServiceException("BAM!");
@@ -361,7 +366,7 @@ public class RetryServiceTest {
         Retry retry = Retry.of("somename", config);
 
         // and: a retry list to store the retry event
-        List<Type> retryEvents = new java.util.ArrayList<>();
+        List<Type> retryEvents = new ArrayList<>();
 
         // and: a set of listeners are registered to log all retry events
         retry.getEventPublisher()
@@ -387,7 +392,7 @@ public class RetryServiceTest {
                     retryEvents.add(type);
                 });
 
-        // and: a service is decorated with the retry mechanism
+        // when: a service is decorated with the retry mechanism
         RemoteService service = mock(RemoteService.class);
         Function<Integer, Void> decorated
                 = Retry.decorateFunction(retry, (Integer s) -> {
@@ -496,5 +501,423 @@ public class RetryServiceTest {
         // then: the retry should use the custom configuration instead of the base configuration
         assertNotEquals(baseConfig.getMaxAttempts(), customRetry.getRetryConfig().getMaxAttempts());
         assertFalse(customRetry.getRetryConfig().isFailAfterMaxAttempts()); // base configuration had this set to true
+    }
+
+    @Test
+    public void resetARetryContextUponSuccess() {
+        // given: a retry configuration
+        int maxAttempts = 5;
+        RetryConfig config = RetryConfig.custom()
+                .ignoreExceptions(NetworkException.class)
+                .maxAttempts(maxAttempts)
+                .build();
+
+        // and: a retry instance
+        Retry retry = Retry.of("somename", config);
+
+        // and: a retry list to store the retry event
+        List<Type> retryEvents = new ArrayList<>();
+
+        // and: a set of listeners are registered to log all retry events
+        retry.getEventPublisher()
+                .onRetry(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Interval: " + event.getWaitInterval()
+                            + " - Event: " + type);
+                    retryEvents.add(type);
+                })
+                .onError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Error: " + type);
+                    retryEvents.add(type);
+                })
+                .onIgnoredError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Ignored error: " + type);
+                    retryEvents.add(type);
+                })
+                .onSuccess(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Success: " + type);
+                    retryEvents.add(type);
+                });
+
+        // when: a service is decorated with the retry mechanism
+        RemoteService service = mock(RemoteService.class);
+        Function<Integer, Void> decorated
+                = Retry.decorateFunction(retry, (Integer s) -> {
+            service.process(s);
+            return null;
+        });
+
+        // and: a remote service configuration that throws an ignored exception after the second retry
+        when(service.process(anyInt()))
+                .thenThrow(new WebServiceException("BAM!"))
+                .thenThrow(new WebServiceException("BAM!"))
+                .thenThrow(new NetworkException("Thanks Vodafone!"));
+
+        // when: the service is called
+        try {
+            decorated.apply(anyInt());
+            fail("Expected the retry to fail after second attempt");
+        } catch (Exception e) {
+            // then: it should be retried two times and then ignored
+            verify(service, times(3)).process(anyInt());
+            assertEquals(3, retryEvents.size());
+            List<Type> expectedList = List.of(
+                    Type.RETRY,
+                    Type.RETRY,
+                    Type.IGNORED_ERROR
+            );
+            assertTrue(expectedList.containsAll(retryEvents));
+        }
+
+        // and: a remote service configuration that always throws an exception
+        reset(service);
+        retryEvents.clear();
+        when(service.process(anyInt()))
+                .thenThrow(new WebServiceException("BAM!"));
+
+        // when: the service is called
+        try {
+            decorated.apply(anyInt());
+        } catch (Exception e) {
+            // then: it should be retried the maximum number of times specified in the retry configuration
+            verify(service, times(maxAttempts)).process(anyInt());
+            assertEquals(maxAttempts, retryEvents.size());
+            // and: it should not share the same retry context
+            List<Type> expectedList = new ArrayList<>();
+            for (int i = 0; i < maxAttempts - 1; i++) {
+                expectedList.add(Type.RETRY);
+            }
+            expectedList.add(Type.ERROR);
+            assertTrue(expectedList.containsAll(retryEvents));
+        }
+    }
+
+    @Test
+    public void noContextPreservationOnDecoratorCall() {
+        // given: a retry configuration
+        int maxAttempts = 5;
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(maxAttempts)
+                .build();
+
+        // and: a retry instance
+        Retry retry = Retry.of("somename", config);
+
+        // and: a retry list to store the retry event
+        List<Type> retryEvents = new ArrayList<>();
+
+        // and: a set of listeners are registered to log all retry events
+        retry.getEventPublisher()
+                .onRetry(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Interval: " + event.getWaitInterval()
+                            + " - Event: " + type);
+                    retryEvents.add(type);
+                })
+                .onError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Error: " + type);
+                    retryEvents.add(type);
+                })
+                .onIgnoredError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Ignored error: " + type);
+                    retryEvents.add(type);
+                })
+                .onSuccess(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Success: " + type);
+                    retryEvents.add(type);
+                });
+
+        // when: a service is decorated with the retry mechanism
+        RemoteService service = mock(RemoteService.class);
+        Function<Integer, Void> decorated
+                = Retry.decorateFunction(retry, (Integer s) -> {
+            service.process(s);
+            return null;
+        });
+
+        // and: a remote service configuration that always throws an exception
+        when(service.process(anyInt()))
+                .thenThrow(new WebServiceException("BAM!"));
+
+        // when: the service is called
+        try {
+            decorated.apply(anyInt());
+            fail("Expected the retry to fail after second attempt");
+        } catch (Exception e) {
+            // then: it should be retried maxAttempts times
+            verify(service, times(maxAttempts)).process(anyInt());
+
+            // and: the retry context should not be preserved
+            assertEquals(maxAttempts, retryEvents.size());
+            // 4 * RETRY + 1 * ERROR
+            List<Type> expectedList = new ArrayList<>();
+            for (int i = 0; i < maxAttempts - 1; i++) {
+                expectedList.add(Type.RETRY);
+            }
+            expectedList.add(Type.ERROR);
+            assertTrue(expectedList.containsAll(retryEvents));
+        }
+
+        // when: the service is called again
+        try {
+            decorated.apply(anyInt());
+            fail("Expected the retry to fail after second attempt");
+        } catch (Exception e) {
+            // then: it should be retried maxAttempts times again
+            // note: not reset mock here, so the call count should be maxAttempts * 2
+            verify(service, times(maxAttempts * 2)).process(anyInt());
+        }
+    }
+
+    @Test
+    public void ifRetryIsNotTriggeredThenNoEventIsPublished() {
+        // given: a retry configuration
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(3)
+                .ignoreExceptions(NetworkException.class)
+                .build();
+
+        // and: a retry instance
+        Retry retry = Retry.of("somename", config);
+
+        // and: a retry list to store the retry event
+        List<Type> retryEvents = new ArrayList<>();
+
+        // and: a set of listeners are registered to log all retry events
+        retry.getEventPublisher()
+                .onRetry(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Interval: " + event.getWaitInterval()
+                            + " - Event: " + type);
+                    retryEvents.add(type);
+                })
+                .onError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Error: " + type);
+                    retryEvents.add(type);
+                })
+                .onIgnoredError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Ignored error: " + type);
+                    retryEvents.add(type);
+                })
+                .onSuccess(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Success: " + type);
+                    retryEvents.add(type);
+                });
+
+        // and: a service is decorated with the retry mechanism
+        RemoteService service = mock(RemoteService.class);
+        Function<Integer, Void> decorated
+                = Retry.decorateFunction(retry, (Integer s) -> {
+            service.process(s);
+            return null;
+        });
+
+        // and: a remote service configuration that always returns a success
+        when(service.process(anyInt())).thenReturn(1);
+
+        // when: the service is called
+        decorated.apply(anyInt());
+
+        // then: no retry event should be published
+        assertTrue(retryEvents.isEmpty());
+    }
+
+    @Test
+    public void ignoredErrorOnFirstCall() {
+        // given: a retry configuration
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(3)
+                .ignoreExceptions(NetworkException.class)
+                .build();
+
+        // and: a retry instance
+        Retry retry = Retry.of("somename", config);
+
+        // and: a retry list to store the retry event
+        List<Type> retryEvents = new ArrayList<>();
+
+        // and: a set of listeners are registered to log all retry events
+        retry.getEventPublisher()
+                .onRetry(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Interval: " + event.getWaitInterval()
+                            + " - Event: " + type);
+                    retryEvents.add(type);
+                })
+                .onError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Error: " + type);
+                    retryEvents.add(type);
+                })
+                .onIgnoredError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Ignored error: " + type);
+                    retryEvents.add(type);
+                })
+                .onSuccess(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Success: " + type);
+                    retryEvents.add(type);
+                });
+
+        // when: a service is decorated with the retry mechanism
+        RemoteService service = mock(RemoteService.class);
+        Function<Integer, Void> decorated
+                = Retry.decorateFunction(retry, (Integer s) -> {
+            service.process(s);
+            return null;
+        });
+
+        // and: a remote service configuration that always throws an ignored exception
+        when(service.process(anyInt()))
+                .thenThrow(new NetworkException("Thanks Vodafone!"));
+
+        // when: the service is called
+        try {
+            decorated.apply(anyInt());
+            fail("Expected the retry to fail after first attempt");
+        } catch (Exception e) {
+            // then: it should not be retried
+            verify(service, times(1)).process(anyInt());
+            assertEquals(1, retryEvents.size());
+            assertEquals(Type.IGNORED_ERROR, retryEvents.get(0));
+        }
+    }
+
+    @Test
+    public void ignoredErrorOnSecondCall() {
+        // given: a retry configuration
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(3)
+                .ignoreExceptions(NetworkException.class)
+                .build();
+
+        // and: a retry instance
+        Retry retry = Retry.of("somename", config);
+
+        // and: a retry list to store the retry event
+        List<Type> retryEvents = new ArrayList<>();
+
+        // and: a set of listeners are registered to log all retry events
+        retry.getEventPublisher()
+                .onRetry(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Interval: " + event.getWaitInterval()
+                            + " - Event: " + type);
+                    retryEvents.add(type);
+                })
+                .onError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Error: " + type);
+                    retryEvents.add(type);
+                })
+                .onIgnoredError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Ignored error: " + type);
+                    retryEvents.add(type);
+                })
+                .onSuccess(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Success: " + type);
+                    retryEvents.add(type);
+                });
+
+        // when: a service is decorated with the retry mechanism
+        RemoteService service = mock(RemoteService.class);
+        Function<Integer, Void> decorated
+                = Retry.decorateFunction(retry, (Integer s) -> {
+            service.process(s);
+            return null;
+        });
+
+        // and: a remote service configuration that throws an ignored exception after the first call
+        when(service.process(anyInt()))
+                .thenThrow(new WebServiceException("BAM!"))
+                .thenThrow(new NetworkException("Thanks Vodafone!"));
+
+        // when: the service is called
+        try {
+            decorated.apply(anyInt());
+            fail("Expected the retry to fail after second attempt");
+        } catch (Exception e) {
+            // then: it should be retried once
+            verify(service, times(2)).process(anyInt());
+            assertEquals(2, retryEvents.size());
+            List<Type> expectedList = List.of(
+                    Type.RETRY,
+                    Type.IGNORED_ERROR
+            );
+            assertTrue(expectedList.containsAll(retryEvents));
+        }
+    }
+
+    @Test
+    public void errorOnFirstCallWithMinimumAttempts() {
+        // given: a retry configuration
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(1)
+                .build();
+
+        // and: a retry instance
+        Retry retry = Retry.of("somename", config);
+
+        // and: a retry list to store the retry event
+        List<Type> retryEvents = new ArrayList<>();
+
+        // and: a set of listeners are registered to log all retry events
+        retry.getEventPublisher()
+                .onRetry(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Interval: " + event.getWaitInterval()
+                            + " - Event: " + type);
+                    retryEvents.add(type);
+                })
+                .onError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Error: " + type);
+                    retryEvents.add(type);
+                })
+                .onIgnoredError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Ignored error: " + type);
+                    retryEvents.add(type);
+                })
+                .onSuccess(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Success: " + type);
+                    retryEvents.add(type);
+                });
+
+        // when: a service is decorated with the retry mechanism
+        RemoteService service = mock(RemoteService.class);
+        Function<Integer, Void> decorated
+                = Retry.decorateFunction(retry, (Integer s) -> {
+            service.process(s);
+            return null;
+        });
+
+        // and: a remote service configuration that always throws an exception
+        when(service.process(anyInt()))
+                .thenThrow(new WebServiceException("BAM!"));
+
+        // when: the service is called
+        try {
+            decorated.apply(anyInt());
+            fail("Expected the retry to fail after first attempt");
+        } catch (Exception e) {
+            // then: it should not be retried once
+            verify(service, times(1)).process(anyInt());
+            assertEquals(1, retryEvents.size());
+            assertEquals(Type.ERROR, retryEvents.get(0));
+        }
     }
 }
