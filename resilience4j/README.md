@@ -6,21 +6,21 @@
 ## Table of Contents
 
 1. [Retry](#retry)
-   - [Configuration](#configuration)
-   - [Registry](#registry)
-   - [States](#states)
-   - [Decorators](#decorators)
-   - [Interval Functions](#interval-functions)
-   - [Events](#events)
-     - [Mechanism](#mechanism)
-     - [Registry](#registry)
-   - [Context](#context)
-     - [Synchronous](#synchronous)
-     - [Asynchronous](#asynchronous)
-   - [Kotlin Module](#kotlin-module)
-     - [Configuration](#configuration-1)
-     - [Decorators](#decorators-1)
-     - [Flow](#flow)
+    - [Configuration](#configuration)
+    - [Registry](#registry)
+    - [States](#states)
+    - [Decorators](#decorators)
+    - [Interval Functions](#interval-functions)
+    - [Events](#events)
+        - [Mechanism](#mechanism)
+        - [Registry](#registry)
+    - [Context](#context)
+        - [Synchronous](#synchronous)
+        - [Asynchronous](#asynchronous)
+    - [Kotlin Interop](#kotlin-interop)
+        - [Configuration](#configuration-1)
+        - [Decorators](#decorators-1)
+        - [Flow](#flow)
 
 ## Retry
 
@@ -39,7 +39,7 @@ TODO: Add server and downstream retry drawing
     <tr>
         <td>maxAttempts</td>
         <td><code>3</code></td>
-        <td>The maximum number of attempts (including the initial call as the first attempt).</td>
+        <td>The maximum number of attempts <strong>(including the initial call as the first attempt)</strong>.</td>
     </tr>
     <tr>
         <td>waitDuration</td>
@@ -84,18 +84,19 @@ From: [Resilience4j Retry Docs](https://resilience4j.readme.io/docs/retry#create
 > mutually exclusive.
 > If both are set it will throw a <code>IllegalStateException</code>.
 
-The configuration uses the [builder](https://en.wikipedia.org/wiki/Builder_pattern) pattern to create a `RetryConfig` instance:
+The configuration uses the [builder](https://en.wikipedia.org/wiki/Builder_pattern) pattern to create a `RetryConfig`
+instance:
 
 ```java
 RetryConfig config = RetryConfig.custom()
-  .maxAttempts(2)
-  .waitDuration(Duration.ofMillis(1000))
-  .retryOnResult(response -> response.getStatus() == 500)
-  .retryOnException(e -> e instanceof WebServiceException)
-  .retryExceptions(IOException.class, TimeoutException.class)
-  .ignoreExceptions(BusinessException.class, OtherBusinessException.class)
-  .failAfterMaxAttempts(true)
-  .build();
+        .maxAttempts(2)
+        .waitDuration(Duration.ofMillis(1000))
+        .retryOnResult(response -> response.getStatus() == 500)
+        .retryOnException(e -> e instanceof WebServiceException)
+        .retryExceptions(IOException.class, TimeoutException.class)
+        .ignoreExceptions(BusinessException.class, OtherBusinessException.class)
+        .failAfterMaxAttempts(true)
+        .build();
 ```
 
 Or using default configuration:
@@ -108,9 +109,9 @@ Or by using a base configuration:
 
 ```java
 RetryConfig baseConfig = RetryConfig.custom()
-  .maxAttempts(2)
-  .waitDuration(Duration.ofMillis(1000))
-  .build();
+        .maxAttempts(2)
+        .waitDuration(Duration.ofMillis(1000))
+        .build();
 
 RetryConfig config = RetryConfig.from(baseConfig);
 ```
@@ -119,8 +120,9 @@ RetryConfig config = RetryConfig.from(baseConfig);
 
 The registry is essentially a `getOrCreate` factory method for `Retry` instances.
 Its function is to manage (i.e., perform CRUD operations) and to store:
+
 - a collection of `Retry` instances using their designated names as unique identifiers;
-- a collection of `RetryConfig` instances using their designated names as unique identifiers. 
+- a collection of `RetryConfig` instances using their designated names as unique identifiers.
 
 To register a `Retry` instance in the `RetryRegistry` with a configuration use:
 
@@ -136,43 +138,53 @@ Retry retry = Retry.of("name", config);
 ```
 
 > [!IMPORTANT]
-> A single <codeRetry</code> instance can be used to decorate multiple [decorators](#decorators)
-> because internally it creates a new <code>Retry</code> [context](https://stackoverflow.com/questions/64052854/resilience4j-new-instance-of-retry-or-retrieve-from-retryregistry) per subscription.
+> A single <code>Retry</code> instance can be used to decorate multiple [decorators](#decorators)
+> because internally it creates a new <code>
+>
+Retry</code> [context](https://stackoverflow.com/questions/64052854/resilience4j-new-instance-of-retry-or-retrieve-from-retryregistry)
+> per subscription.
 
 ### States
 
-TODO: Add connections between states (transitions)
+A [decorated](#decorators) method with a `Retry` instance can be in one of the following states:
 
-The `Retry` mechanism has the following states:
+| <img src="../docs/imgs/retry-execution-flow.png" alt="Retry Execution Flow" width="80%"> |
+|:----------------------------------------------------------------------------------------:|
+|                                   Retry Execution Flow                                   |
 
-| <img src="../docs/imgs/retry-states.png" alt="Retry States" width="80%"> |
-|:------------------------------------------------------------------------:|
-|                               Retry States                               |
+- `RETRY`: A retry attempt was triggered;
+- `SUCCESS`: The retry attempt was successful, and thus the next retry attempt is not triggered.
+- `IGNORED_ERROR`: The method execution failed, but the retry mechanism was not triggered, since the exception is not
+  considered a failure (e.g., the exception is in the `ignoreExceptions` list);
+- `ERROR`: The method execution failed, and the retry mechanism was not triggered because configuration conditions were
+  not met (e.g., the maximum number of attempts was reached).
 
-When a retry is attempted, the following events can be triggered as a result:
-- `RETRY`: The retry failed, but there are favorable conditions to trigger another retry attempt;
-- `ERROR`: The retry failed, but there are no favorable conditions to trigger another retry attempt (e.g., the maximum number of attempts was reached);
-- `SUCCESS`: The retry was successful and thus the next retry attempt is not triggered;
-- `IGNORED_ERROR`: The retry failed because the exception is in `ignoreExceptions` list and thus the next retry attempt is not triggered.
+> [!NOTE]
+> State `IGNORED_ERROR` will propagate the exception to the caller,
+> while state `ERROR` will also propagate the exception if the `intervalBiFunction` returns a negative value.
 
 ### Decorators
 
 A decorator is a high-order function that wraps a function and returns a new function with the same signature.
 
 Available decorators:
+
 - [Supplier](https://docs.oracle.com/javase/8/docs/api/java/util/function/Supplier.html);
-  - Supplier<[CompletionStage](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html)>;
+    - Supplier<[CompletionStage](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html)>;
 - [Runnable](https://docs.oracle.com/javase/8/docs/api/java/lang/Runnable.html);
 - [Callable](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/Callable.html);
 - [Function](https://docs.oracle.com/javase/8/docs/api/java/util/function/Function.html)
 
 And checked variants provided by the library, which wrap unchecked exceptions that might be thrown:
-- CheckedSupplier;
-- CheckedRunnable;
-- CheckedFunction
+
+- `CheckedSupplier`;
+- `CheckedRunnable`;
+- `CheckedFunction`
 
 Associated with a given high-order function, there is also the capability to:
-- `recover`: Provides a function to handle exceptions or errors that might occur during the execution of the high-order function. This recovery mechanism allows the program to gracefully handle errors and continue execution;
+
+- `recover`: Provides a function to handle exceptions or errors that might occur during the execution of the high-order
+  function. This recovery mechanism allows the program to gracefully handle errors and continue execution;
     ```java
     Retry retry = Retry.of("name", config);
     CheckedSupplier<String> retryableSupplier = Retry
@@ -180,8 +192,11 @@ Associated with a given high-order function, there is also the capability to:
     Try<String> result = Try.of(retryableSupplier)
         .recover(throwable -> "Hello from recovery");
     ```
-  
-- `andThen`: This function enables chaining operations after the execution of the high-order function. It acts similar to a [flatmap](https://dzone.com/articles/understanding-flatmap) operation in functional programming, where the result of the first operation is passed as input to the next operation, allowing for sequential composition of functions and without multiple wrapping of the result.
+
+- `andThen`: This function enables chaining operations after the execution of the high-order function. It acts similar
+  to a [flatmap](https://dzone.com/articles/understanding-flatmap) operation in functional programming, where the result
+  of the first operation is passed as input to the next operation, allowing for sequential composition of functions and
+  without multiple wrapping of the result.
 
 ### Interval Functions
 
@@ -208,7 +223,7 @@ A few examples:
     ```java
     IntervalFunction randomWaitInterval = IntervalFunction.ofRandomized();
     ```
-   
+
 4. **Custom**
     ```java
     IntervalFunction customIntervalFunction =
@@ -218,7 +233,8 @@ A few examples:
 ### Events
 
 An `EventPublisher` is used
-to register event listeners in both the underlying retry mechanism and the registry where the registered retries are stored.
+to register event listeners in both the underlying retry mechanism and the registry where the retry and retry config
+instances are stored.
 
 #### Mechanism
 
@@ -226,60 +242,120 @@ See [states](#states) for the possible `RetryEvent` types.
 
 ```java
 Retry retry = Retry.of("name", config);
-retry.getEventPublisher()
-    .onRetry(event -> logger.info("Event: " + event.getEventType()))
-    .onError(event -> logger.info("Error: " + event.getEventType()))
-    .onIgnoredError(event -> logger.info("Ignored error: " + event.getEventType()))
-    .onSuccess(event -> logger.info("Success: " + event.getEventType()));
+retry.
+
+getEventPublisher()
+    .
+
+onRetry(event ->logger.
+
+info("Event: "+event.getEventType()))
+        .
+
+onError(event ->logger.
+
+info("Error: "+event.getEventType()))
+        .
+
+onIgnoredError(event ->logger.
+
+info("Ignored error: "+event.getEventType()))
+        .
+
+onSuccess(event ->logger.
+
+info("Success: "+event.getEventType()));
 ```
 
 #### Registry
 
 ```java 
 RetryRegistry registry = RetryRegistry.ofDefaults();
-registry.getEventPublisher()
-  .onEntryAdded(entryAddedEvent -> {
-    Retry addedRetry = entryAddedEvent.getAddedEntry();
-    logger.info("Retry {} added", addedRetry.getName());
-  })
-  .onEntryRemoved(entryRemovedEvent -> {
-    Retry removedRetry = entryRemovedEvent.getRemovedEntry();
-    logger.info("Retry {} removed", removedRetry.getName());
-  });
+registry.
+
+getEventPublisher()
+  .
+
+onEntryAdded(entryAddedEvent ->{
+Retry addedRetry = entryAddedEvent.getAddedEntry();
+    logger.
+
+info("Retry {} added",addedRetry.getName());
+        })
+        .
+
+onEntryRemoved(entryRemovedEvent ->{
+Retry removedRetry = entryRemovedEvent.getRemovedEntry();
+    logger.
+
+info("Retry {} removed",removedRetry.getName());
+        });
 ```
 
 ### Context
 
-The `Retry` instance can be used in both synchronous and asynchronous contexts,
-which abide by the following interfaces, respectively:
+The context is a state-holder
+that is used to manage the retry mechanism and advance the underlying state machine in both synchronous and asynchronous
+scenarios.
 
 #### Synchronous
 
 ```java
 public interface Context<T> {
     void onComplete();
+
     boolean onResult(T result);
+
     void onError(Exception exception) throws Exception;
+
     void onRuntimeError(RuntimeException runtimeException);
 }
 ```
+
+- `onComplete`: This method is called when the operation under retry is completed. Depending on the outcome (success,
+  failure, or reaching the maximum number of attempts), it updates counters and publishes retry events;
+- `onResult`: This method is called when a result is obtained from the operation. It evaluates the result against a
+  predicate and decides whether to continue retrying or not based on the result and the number of attempts;
+- `onError`: This method is called when a checked exception occurs during the operation. It evaluates the exception
+  against a predicate and decides whether to retry or propagate the exception further;
+- `onRuntimeError`: This method is called when a runtime exception occurs during the operation. It is similar
+  to `onError`, but specifically for runtime exceptions.
 
 #### Asynchronous
 
 ```java
 public interface AsyncContext<T> {
     void onComplete();
+
     long onError(Throwable throwable);
+
     long onResult(T result);
 }
 ```
 
-### Kotlin Module
+Behaves similarly to the synchronous context in terms of logic,
+but the methods return a `long` value
+that represents the number of milliseconds to wait before the next retry attempt or `-1` if the retry should not be
+attempted.
+
+> [!IMPORTANT]
+> In asynchronous contexts,
+> the responsibility for handling exceptions
+> thrown by the called method is typically delegated to the asynchronous framework or to the completion handlers
+> associated with asynchronous operations.
+> Unlike synchronous contexts,
+> where the calling thread is often responsible for handling checked and runtime exceptions (i.e., unchecked
+> exceptions),
+> in asynchronous programming models, the calling thread is generally not directly involved in exception handling.
+> Which is why the `AsyncContext` does not differentiate between checked and runtime exceptions.
+
+### Kotlin Interop
 
 #### Configuration
 
 Since Kotlin is interoperable with Java,
-the configuration can be done in the same way but with a more concise syntax which uses [trailing lambdas](https://kotlinlang.org/docs/lambdas.html#passing-trailing-lambdas).
+the configuration can be done in a similar way but with a more concise syntax which takes advantage
+of [trailing lambdas](https://kotlinlang.org/docs/lambdas.html#passing-trailing-lambdas).
 
 ```kotlin
 val configName = "config"
@@ -295,7 +371,8 @@ val retry = retryRegistry.retry("retry", configName)
 
 #### Decorators
 
-As mentioned in the [context](#context) section, this module provides decorators for both synchronous and asynchronous contexts.
+As mentioned in the [context](#context) section, this module provides decorators for both synchronous and asynchronous
+contexts.
 
 ```kotlin
 runBlocking {
@@ -316,17 +393,18 @@ retry.executeFunction {
 
 #### Flow
 
-The library also provides several extensions for the asynchronous primitive [Flow](https://kotlinlang.org/docs/flow.html)
+The library also provides several extensions for the asynchronous
+primitive [Flow](https://kotlinlang.org/docs/flow.html)
 to work with all provided mechanisms.
 Such extensions are not terminal operators and can be chained with others.
 
 ```kotlin
 val retry = Retry.ofDefaults()
 val rateLimiter = RateLimiter.ofDefaults()
-  
+
 flowOf(1, 2, 3)
-  .rateLimiter(rateLimiter)
-  .map { it * 2 }
-  .retry(retry)
-  .collect { println(it) } // terminal operator
+    .rateLimiter(rateLimiter)
+    .map { it * 2 }
+    .retry(retry)
+    .collect { println(it) } // terminal operator
 ```
