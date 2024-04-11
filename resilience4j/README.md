@@ -21,12 +21,13 @@
         - [Configuration](#configuration-1)
         - [Decorators](#decorators-1)
         - [Flow](#flow)
+    - [Kotlin Multiplatform Design](#kotlin-multiplatform-design)
 
 ## Retry
 
 TODO: Add server and downstream retry drawing
 
-[Main Implementation Module](https://github.com/resilience4j/resilience4j/blob/master/resilience4j-retry/src/main/java/io/github/resilience4j/retry/internal/RetryImpl.java)
+[RetryImpl](https://github.com/resilience4j/resilience4j/blob/9ed5b86fa6add55ee32a733e8ed43058a3c9ec63/resilience4j-retry/src/main/java/io/github/resilience4j/retry/internal/RetryImpl.java)
 
 ### Configuration
 
@@ -138,10 +139,9 @@ Retry retry = Retry.of("name", config);
 ```
 
 > [!IMPORTANT]
-> A single <code>Retry</code> instance can be used to decorate multiple [decorators](#decorators)
-> because internally it creates a new <code>
->
-Retry</code> [context](https://stackoverflow.com/questions/64052854/resilience4j-new-instance-of-retry-or-retrieve-from-retryregistry)
+> A single `Retry` instance can be used to decorate multiple [decorators](#decorators)
+> because internally it creates a
+> new `Retry` [context](https://stackoverflow.com/questions/64052854/resilience4j-new-instance-of-retry-or-retrieve-from-retryregistry)
 > per subscription.
 
 ### States
@@ -241,55 +241,31 @@ instances are stored.
 See [states](#states) for the possible `RetryEvent` types.
 
 ```java
-Retry retry = Retry.of("name", config);
-retry.
-
-getEventPublisher()
-    .
-
-onRetry(event ->logger.
-
-info("Event: "+event.getEventType()))
-        .
-
-onError(event ->logger.
-
-info("Error: "+event.getEventType()))
-        .
-
-onIgnoredError(event ->logger.
-
-info("Ignored error: "+event.getEventType()))
-        .
-
-onSuccess(event ->logger.
-
-info("Success: "+event.getEventType()));
+public void configureRetryEventListeners() {
+    Retry retry = Retry.of("name", config);
+    retry.getEventPublisher()
+            .onRetry(event -> logger.info("Event: " + event.getEventType()))
+            .onError(event -> logger.info("Error: " + event.getEventType()))
+            .onIgnoredError(event -> logger.info("Ignored error: " + event.getEventType()))
+            .onSuccess(event -> logger.info("Success: " + event.getEventType()));
+}
 ```
 
 #### Registry
 
-```java 
-RetryRegistry registry = RetryRegistry.ofDefaults();
-registry.
-
-getEventPublisher()
-  .
-
-onEntryAdded(entryAddedEvent ->{
-Retry addedRetry = entryAddedEvent.getAddedEntry();
-    logger.
-
-info("Retry {} added",addedRetry.getName());
-        })
-        .
-
-onEntryRemoved(entryRemovedEvent ->{
-Retry removedRetry = entryRemovedEvent.getRemovedEntry();
-    logger.
-
-info("Retry {} removed",removedRetry.getName());
-        });
+```java
+void configureRegistryEventListeners() {
+    RetryRegistry registry = RetryRegistry.ofDefaults();
+    registry.getEventPublisher()
+            .onEntryAdded(entryAddedEvent -> {
+                Retry addedRetry = entryAddedEvent.getAddedEntry();
+                logger.info("Retry {} added", addedRetry.getName());
+            })
+            .onEntryRemoved(entryRemovedEvent -> {
+                Retry removedRetry = entryRemovedEvent.getRemovedEntry();
+                logger.info("Retry {} removed", removedRetry.getName());
+            });
+}
 ```
 
 ### Context
@@ -365,7 +341,6 @@ val retryRegistry = RetryRegistry {
         waitDuration(Duration.ofMillis(10))
     }
 }
-
 val retry = retryRegistry.retry("retry", configName)
 ```
 
@@ -408,3 +383,23 @@ flowOf(1, 2, 3)
     .retry(retry)
     .collect { println(it) } // terminal operator
 ```
+
+### Kotlin Multiplatform Design
+
+Resilience4j is compatible with Kotlin but only for the JVM environment.
+Some considerations for multiplatform design are:
+1. `Concurrency`
+   - **Problem**: The library uses Java's [concurrent](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html) package for concurrency (e.g., `AtomicInteger`, `AtomicReference`, `LongAdder`)
+   - **Potential solution**: Use [kotlinx-atomicfu](https://github.com/Kotlin/kotlinx-atomicfu) for multiplatform compatibility.
+2. `Duration`
+   - **Problem**: The library uses Java's [Duration](https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html) to represent time intervals.
+   - **Potential solution**: use `kotlinx-datetime` for multiplatform compatibility.
+3. `Delay`
+   - **Problem**: The library uses Java's [Thread.sleep]([Thread.sleep](https://github.com/resilience4j/resilience4j/blob/9ed5b86fa6add55ee32a733e8ed43058a3c9ec63/resilience4j-retry/src/main/java/io/github/resilience4j/retry/internal/RetryImpl.java#L48)) for delay as the default function. 
+   - **Potential solution**: Use a library like [kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines) for delay and other asynchronous operations in a multiplatform environment.
+
+> [!IMPORTANT]
+> If Javascript target is required,
+> a Kotlin Multiplatform implementation of the Retry mechanism cannot use synchronous [context](#context) because of the [single-threaded
+> nature of JavaScript](https://medium.com/@hibaabdelkarim/javascript-synchronous-asynchronous-single-threaded-daaa0bc4ad7d).
+> Implementation should be done using asynchronou context only.
