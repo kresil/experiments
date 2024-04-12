@@ -24,6 +24,7 @@ class ChatApplication {
      * - routing configuration
      */
     fun Application.module() {
+
         configureHeaders()
         configureMonitoring()
         configureSessions()
