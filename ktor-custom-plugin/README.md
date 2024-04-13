@@ -217,24 +217,24 @@ Available pipelines in `ktor-client` are:
     - `Render`: Encode a request body to `OutgoingContent`;
     - `Send`: A phase for the `HttpSend` plugin.
 - [HttpSendPipeline](https://api.ktor.io/ktor-client/ktor-client-core/io.ktor.client.request/-http-send-pipeline/-phases/index.html):
-  A pipeline used for sending a request.It has the following phases:
+  A pipeline used for sending a request. It has the following phases:
     - `Before`: The earliest phase that happens before any other;
     - `State`: Use this phase to modify a request with a shared state;
     - `Monitoring`: Use this phase for logging and other actions that don't modify a request or shared data;
     - `Engine`: Send a request to a remote server;
     - `Receive`: Receive a pipeline execution phase.
+- [HttpReceivePipeline](https://api.ktor.io/ktor-client/ktor-client-core/io.ktor.client.statement/-http-receive-pipeline/-phases/index.html):
+  A pipeline used for receiving a response without processing. It has the following phases:
+    - `Before`: The earliest phase that happens before any other;
+    - `State`: Use this phase to store request shared state;
+    - `After`: Latest response pipeline phase.
 - [HttpResponsePipeline](https://api.ktor.io/ktor-client/ktor-client-core/io.ktor.client.statement/-http-response-pipeline/-phases/index.html):
   A pipeline used for processing responses. It has the following phases:
     - `Receive`: The earliest phase that happens before any other;
     - `Parse`: Decode response body;
     - `Transform`: Transform response body to expected format;
     - `State`: Use this phase to store request shared state;
-    - `After`: Latest response pipeline phase
-- [HttpReceivePipeline](https://api.ktor.io/ktor-client/ktor-client-core/io.ktor.client.statement/-http-receive-pipeline/-phases/index.html):
-  A pipeline used for receiving a request. It has the following phases:
-    - `Before`: The earliest phase that happens before any other;
-    - `State`: Use this phase to store request shared state;
-    - `After`: Latest response pipeline phase
+    - `After`: Latest response pipeline phase.
 
 | ![Client Pipelines](../docs/imgs/ktor-client-pipelines.png) |
 |:-----------------------------------------------------------:|
