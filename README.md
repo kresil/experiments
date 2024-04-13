@@ -8,4 +8,5 @@
 - 🌐 [Kotlin-Js Interop](kotlin-js-interop/README.md)
 - ⚙️ [Ktor Framework](ktor/README.md)
 - 🔄 [Ktor Retry Plugin](ktor-retry-plugin/README.md)
+- 🧩 [Ktor Custom Plugin](ktor-custom-plugin/README.md)
 - 🛡️ [Resilience4j](resilience4j/README.md) 
