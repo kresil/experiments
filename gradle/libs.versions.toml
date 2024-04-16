@@ -61,6 +61,7 @@ ktor-server-sessions = { module = "io.ktor:ktor-server-sessions", version.ref = 
 ktor-server-statuspages = { module = "io.ktor:ktor-server-status-pages", version.ref = "ktor" }
 ktor-server-testhost = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
 ktor-server-hostcommon = { module = "io.ktor:ktor-server-host-common", version.ref = "ktor" }
+ktor-server-configyaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
 
 # Resilience4j
 resilience4j-retry = { module = "io.github.resilience4j:resilience4j-retry", version.ref = "resilience4j" }
