@@ -1,12 +1,15 @@
 # Ktor Retry Plugin
 
-### Install
+This plugin intercepts the `HttpSend` plugin which in turn intercepts the `HttpRequestPipeline` pipeline during the `Send` phase,
+which is the last default phase of this pipeline.
 
-The `HttpRequestRetry` plugin can be installed using the `install` function
-and configured using its **last parameter function**
-(_trailing lambda_), as with other Ktor plugins.
+The `HttpRequestPipeline` is the first client pipeline and is responsible for processing all requests sent by a client. It acts before the `HttpSendPipeline` pipeline, which is responsible for sending the request to the server.
 
-The plugin is part of the `ktor-client-core` module.
+See `ktor-custom-plugin` module [documentation](../ktor-custom-plugin/README.md#pipelines-1) for more details on client pipelines.
+
+In short,
+this plugin intercepts the request before it is sent to the server
+and can retry it based on policies defined in the plugin configuration.
 
 ### Configuration
 
@@ -19,7 +22,7 @@ The plugin is part of the `ktor-client-core` module.
 
 > [!NOTE]
 > The plugin also provides more specific methods to retry for
-> (e.g., on server errors, for example, `retryOnServerErrors()` retries on server 5xx errors).
+> (e.g., `retryOnServerErrors()` retries on server 5xx errors).
 
 Example:
 
