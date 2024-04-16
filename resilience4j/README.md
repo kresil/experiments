@@ -85,8 +85,15 @@ From: [Resilience4j Retry Docs](https://resilience4j.readme.io/docs/retry#create
 > mutually exclusive.
 > If both are set it will throw a <code>IllegalStateException</code>.
 
-The configuration uses the [builder](https://en.wikipedia.org/wiki/Builder_pattern) pattern to create a `RetryConfig`
-instance:
+
+A configuration represents the retry mechanism's behavior - policies - and is used to create a `Retry` instance, which is a
+thread-safe instance that holds the [decoration](#decorators) logic and defines the async and
+sync [contexts](#context) (i.e., state-holders),
+among other funcionalities
+(e.g., metrics, [event-publishers](#events)).
+A `Retry` instance cannot be created without a custom or default RetryConfig.
+
+The configuration is done using the `RetryConfig` class. It uses the [builder](https://en.wikipedia.org/wiki/Builder_pattern) pattern to create a configuration object:
 
 ```java
 RetryConfig config = RetryConfig.custom()
@@ -117,6 +124,10 @@ RetryConfig baseConfig = RetryConfig.custom()
 RetryConfig config = RetryConfig.from(baseConfig);
 ```
 
+> [!NOTE]
+> When using a base configuration, the new configuration will inherit the properties of the base configuration.
+> Although, if the new configuration has the same property set, it will override the base configuration's property.
+
 ### Registry
 
 The registry is essentially a `getOrCreate` factory method for `Retry` instances.
@@ -141,7 +152,8 @@ Retry retry = Retry.of("name", config);
 > [!IMPORTANT]
 > A single `Retry` instance can be used to decorate multiple [decorators](#decorators)
 > because internally it creates a
-> new `Retry` [context](https://stackoverflow.com/questions/64052854/resilience4j-new-instance-of-retry-or-retrieve-from-retryregistry)
+>
+new `Retry` [context](https://stackoverflow.com/questions/64052854/resilience4j-new-instance-of-retry-or-retrieve-from-retryregistry)
 > per subscription.
 
 ### States
@@ -387,19 +399,28 @@ flowOf(1, 2, 3)
 ### Kotlin Multiplatform Design
 
 Resilience4j is compatible with Kotlin but only for the JVM environment.
-Some considerations for multiplatform design are:
+Some considerations for multiplatform design found are:
+
 1. `Concurrency`
-   - **Problem**: The library uses Java's [concurrent](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html) package for concurrency (e.g., `AtomicInteger`, `AtomicReference`, `LongAdder`)
-   - **Potential solution**: Use [kotlinx-atomicfu](https://github.com/Kotlin/kotlinx-atomicfu) for multiplatform compatibility.
+    - **Problem**: The library uses
+      Java's [concurrent](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/package-summary.html) package
+      for concurrency (e.g., `AtomicInteger`, `AtomicReference`, `LongAdder`)
+    - **Potential solution**: Use [kotlinx-atomicfu](https://github.com/Kotlin/kotlinx-atomicfu) for multiplatform
+      compatibility.
 2. `Duration`
-   - **Problem**: The library uses Java's [Duration](https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html) to represent time intervals.
-   - **Potential solution**: use `kotlinx-datetime` for multiplatform compatibility.
+    - **Problem**: The library uses Java's [Duration](https://docs.oracle.com/javase/8/docs/api/java/time/Duration.html)
+      to represent time intervals.
+    - **Potential solution**: use `kotlinx-datetime` for multiplatform compatibility.
 3. `Delay`
-   - **Problem**: The library uses Java's [Thread.sleep]([Thread.sleep](https://github.com/resilience4j/resilience4j/blob/9ed5b86fa6add55ee32a733e8ed43058a3c9ec63/resilience4j-retry/src/main/java/io/github/resilience4j/retry/internal/RetryImpl.java#L48)) for delay as the default function. 
-   - **Potential solution**: Use a library like [kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines) for delay and other asynchronous operations in a multiplatform environment.
+    - **Problem**: The library uses
+      Java's [Thread.sleep]([Thread.sleep](https://github.com/resilience4j/resilience4j/blob/9ed5b86fa6add55ee32a733e8ed43058a3c9ec63/resilience4j-retry/src/main/java/io/github/resilience4j/retry/internal/RetryImpl.java#L48))
+      for delay as the default function.
+    - **Potential solution**: Use a library like [kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines) for
+      delay and other asynchronous operations in a multiplatform environment.
 
 > [!IMPORTANT]
 > If Javascript target is required,
-> a Kotlin Multiplatform implementation of the Retry mechanism cannot use synchronous [context](#context) because of the [single-threaded
+> a Kotlin Multiplatform implementation of the Retry mechanism cannot use synchronous [context](#context) because of
+> the [single-threaded
 > nature of JavaScript](https://medium.com/@hibaabdelkarim/javascript-synchronous-asynchronous-single-threaded-daaa0bc4ad7d).
 > Implementation should be done using asynchronou context only.
