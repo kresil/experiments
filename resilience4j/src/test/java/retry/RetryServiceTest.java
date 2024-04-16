@@ -920,4 +920,27 @@ public class RetryServiceTest {
             assertEquals(Type.ERROR, retryEvents.get(0));
         }
     }
+
+    @Test
+    public void overrideABaseConfigPolicy() {
+        // given: a base retry configuration
+        int baseConfigAttempts = 2;
+        RetryConfig baseConfig = RetryConfig.custom()
+                .maxAttempts(baseConfigAttempts)
+                .failAfterMaxAttempts(true)
+                .build();
+
+        // and: a custom retry configuration based on the base configuration that overrides at least one policy
+        int customConfigAttempts = 5;
+        RetryConfig customConfig = RetryConfig.from(baseConfig)
+                .maxAttempts(customConfigAttempts)
+                .build();
+
+        // then: the custom configuration should override the base configuration for each policy that is different
+        assertNotEquals(baseConfig.getMaxAttempts(), customConfig.getMaxAttempts());
+
+        // and: the custom configuration should inherit the base configuration for each policy that is the same
+        assertEquals(baseConfig.isFailAfterMaxAttempts(), customConfig.isFailAfterMaxAttempts());
+
+    }
 }
