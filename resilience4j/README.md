@@ -21,7 +21,10 @@
         - [Configuration](#configuration-1)
         - [Decorators](#decorators-1)
 2. [Circuit Breaker](#circuit-breaker)
+    - [State Machine](#state-machine)
     - [Configuration](#configuration-2)
+    - [Sliding Window](#sliding-window)
+    - [Additional Details](#additional-details)
 3. [Kotlin Multiplatform Design](#kotlin-multiplatform-design)
 4. [Flow](#flow)
 
