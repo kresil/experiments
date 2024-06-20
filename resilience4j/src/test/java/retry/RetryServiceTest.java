@@ -1,5 +1,6 @@
 package retry;
 
+import exceptions.BusinessServiceException;
 import exceptions.NetworkException;
 import exceptions.RemoteServiceException;
 import exceptions.WebServiceException;
@@ -942,5 +943,76 @@ public class RetryServiceTest {
         // and: the custom configuration should inherit the base configuration for each policy that is the same
         assertEquals(baseConfig.isFailAfterMaxAttempts(), customConfig.isFailAfterMaxAttempts());
 
+    }
+
+    @Test
+    public void ignoreExceptionsOnRetry() {
+        // given: a retry configuration
+        RetryConfig config = RetryConfig.custom()
+                .maxAttempts(3)
+                .retryExceptions(NetworkException.class)
+                .ignoreExceptions(BusinessServiceException.class)
+                .build();
+
+        // and: a retry instance
+        Retry retry = Retry.of("somename", config);
+
+        // and: a retry list to store the retry event
+        List<Type> retryEvents = new ArrayList<>();
+
+        // and: a set of listeners are registered to log all retry events
+        retry.getEventPublisher()
+                .onRetry(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Interval: " + event.getWaitInterval()
+                            + " - Event: " + type);
+                    retryEvents.add(type);
+                })
+                .onError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Error: " + type);
+                    retryEvents.add(type);
+                })
+                .onIgnoredError(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Ignored error: " + type);
+                    retryEvents.add(type);
+                })
+                .onSuccess(event -> {
+                    Type type = event.getEventType();
+                    logger.info("Success: " + type);
+                    retryEvents.add(type);
+                });
+
+        // when: a service is decorated with the retry mechanism
+        RemoteService service = mock(RemoteService.class);
+        Function<Integer, Void> decorated
+                = Retry.decorateFunction(retry, (Integer s) -> {
+            service.process(s);
+            return null;
+        });
+
+        // and: a remote service configuration that can throw an ignored exception
+        when(service.process(anyInt()))
+                .thenThrow(
+                        new NetworkException("Thanks Vodafone!"),
+                        new BusinessServiceException("BAM!"),
+                        new WebServiceException("BAM!")
+                );
+
+        // when: the service is called
+        try {
+            decorated.apply(anyInt());
+            fail("Expected the retry to fail after first attempt");
+        } catch (Exception e) {
+            // then: it should not be retried
+            verify(service, times(2)).process(anyInt());
+            assertEquals(2, retryEvents.size());
+            List<Type> expectedList = List.of(
+                    Type.RETRY,
+                    Type.IGNORED_ERROR
+            );
+            assertTrue(expectedList.containsAll(retryEvents));
+        }
     }
 }

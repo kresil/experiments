@@ -64,6 +64,7 @@ ktor-server-hostcommon = { module = "io.ktor:ktor-server-host-common", version.r
 ktor-server-configyaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
 
 # Resilience4j
+resilience4j-circuitbreaker = { module = "io.github.resilience4j:resilience4j-circuitbreaker", version.ref = "resilience4j" }
 resilience4j-retry = { module = "io.github.resilience4j:resilience4j-retry", version.ref = "resilience4j" }
 resilience4j-kotlin = { module = "io.github.resilience4j:resilience4j-kotlin", version.ref = "resilience4j" }
 
