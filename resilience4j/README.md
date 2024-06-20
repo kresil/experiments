@@ -569,7 +569,16 @@ Contrary to throttling, rate limiting is applied to the number of requests per t
         <td>50</td>
         <td>The number of permissions available during one limit refresh period.</td>
     </tr>
+    <tr>
+        <td>drainPermissionsOnResult</td>
+        <td>Either<? extends Throwable, ? extends Result> -&gt; false</td>
+        <td>Configures a Predicate which evaluates if a result of the underlying service should be used to drain permissions.</td>
+    </tr>
 </table>
+
+> [!IMPORTANT]
+> Both `limitForPeriod` and `limitRefreshPeriod` can be adjusted at runtime
+> using the `changeLimitForPeriod` and `changeLimitRefreshPeriod` methods respectively of the `RateLimiter` instance.
 
 From: [Resilience4j Rate Limiter Docs](https://resilience4j.readme.io/docs/ratelimiter#create-and-configure-a-ratelimiter)
 
