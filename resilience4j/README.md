@@ -25,8 +25,13 @@
     - [Configuration](#configuration-2)
     - [Sliding Window](#sliding-window)
     - [Additional Details](#additional-details)
-3. [Kotlin Multiplatform Design](#kotlin-multiplatform-design)
-4. [Flow](#flow)
+3. [Rate Limiter](#rate-limiter)
+    - [Configuration](#configuration-3)
+    - [Implementations](#implementations)
+    - [Approaches After Rate Exceeded](#approaches-after-rate-exceeded)
+    - [Additional Details](#additional-details-1)
+4. [Kotlin Multiplatform Design](#kotlin-multiplatform-design)
+5. [Flow](#flow)
 
 ## Retry
 
@@ -406,7 +411,7 @@ The circuit breaker, which acts like a proxy for the underlying operation, can b
 
 - `Open`: The request from the application fails immediately, and an exception is returned to the application.
 
-- `Half-Open`: A limited number of requests from the application are allowed to pass through and invoke the operation. If these requests are successful, it's assumed that the fault that was previously causing the failure has been fixed and the circuit breaker switches to the `Closed` state (the failure counter is reset). If any request fails, the circuit breaker assumes that the fault is still present so it reverts to the `Open` state and restarts the timeout timer to give the system a further period of time to recover from the failure.
+- `Half-Open`: A limited number of requests from the application are allowed to pass through and invoke the operation. If these requests are successful, it's assumed that the fault that was previously causing the failure has been fixed and the circuit breaker switches to the `Closed` state (the failure counter is resetted). If any request fails, the circuit breaker assumes that the fault is still present so it reverts to the `Open` state and restarts the timeout timer to give the system a further period of time to recover from the failure.
 
 > [!IMPORTANT]
 > The `Half-Open` state is useful to prevent a recovering service from suddenly being flooded with requests. As a service recovers, it might be able to support a limited volume of requests until the recovery is complete, but while recovery is in progress, a flood of work can cause the service to time out or fail again.
@@ -501,7 +506,7 @@ From: [Resilience4j Circuit Breaker Docs](https://resilience4j.readme.io/docs/ci
 
 > [!NOTE]
 > `Resilience4j` also provides two more states: `DISABLED` (stopping automatic state transition, metrics and event publishing)
-> and `FORCED_OPEN` (same behavior as disabled state, but always returning an exception), as well as manual control
+> and `FORCED_OPEN` (same behavior as disabled state, but always returning an exception); as well as manual control
 > over the possible state transitions.
 
 > [!NOTE]
@@ -531,8 +536,72 @@ From [Resilience4j Circuit Breaker Docs](https://resilience4j.readme.io/docs/cir
 Just like the [Retry](#retry) mechanism, the Circuit Breaker mechanism also provides:
 - [Registry](#registry) for managing Circuit Breaker instances and configurations;
 - [Decorators](#decorators) for wrapping functions with the Circuit Breaker logic;
-- [Events](#events) for monitoring the Circuit Breaker's state transitions and outcomes.
+- [Events](#events) for monitoring the Circuit Breaker's state transitions and outcomes;
 - [Kotlin Interop](#kotlin-interop) for accessing the Circuit Breaker mechanism in Kotlin that compiles to JVM bytecode.
+
+## Rate Limiter
+
+Rate limiting restricts the number of requests a client can make to a service within a specified time frame.
+It aims to prevent abuse, ensure fair usage,
+protect the service from being overwhelmed and ensure that it remains responsive to legitimate users.
+Contrary to throttling, rate limiting is applied to the number of requests per time frame, while throttling is applied to the rate of requests.
+
+### Configuration
+
+<table>
+    <tr>
+        <th>Config property</th>
+        <th>Default value</th>
+        <th>Description</th>
+    </tr>
+    <tr>
+        <td>timeoutDuration</td>
+        <td>5 [s]</td>
+        <td>The default wait time a thread waits for a permission.</td>
+    </tr>
+    <tr>
+        <td>limitRefreshPeriod</td>
+        <td>500 [ns]</td>
+        <td>The period of a limit refresh. After each period the rate limiter sets its permissions count back to the limitForPeriod value.</td>
+    </tr>
+    <tr>
+        <td>limitForPeriod</td>
+        <td>50</td>
+        <td>The number of permissions available during one limit refresh period.</td>
+    </tr>
+    <tr>
+        <td>drainPermissionsOnResult</td>
+        <td>Either<? extends Throwable, ? extends Result> -&gt; false</td>
+        <td>Configures a Predicate which evaluates if a result of the underlying service should be used to drain permissions.</td>
+    </tr>
+</table>
+
+> [!IMPORTANT]
+> Both `limitForPeriod` and `limitRefreshPeriod` can be adjusted at runtime
+> using the `changeLimitForPeriod` and `changeLimitRefreshPeriod` methods respectively of the `RateLimiter` instance.
+
+From: [Resilience4j Rate Limiter Docs](https://resilience4j.readme.io/docs/ratelimiter#create-and-configure-a-ratelimiter)
+
+### Implementations
+
+There are two implementations of the Rate Limiter mechanism:
+- `AtomicRateLimiter`: A rate limiter that manages its state via `AtomicReference`. Represents the default implementation.
+- `SemaphoreBasedRateLimiter`: A rate limiter that uses `Semaphores` and a `Scheduler` that will refresh permissions after each `limitRefreshPeriod`.
+
+### Approaches After Rate Exceeded
+
+When the rate is exceeded, the Rate Limiter can either:
+- `Block`: The rate limiter blocks the request.
+- `Queue`: The rate limiter queues the request to be processed later.
+- `Combined`: A way to combine both blocking and queuing based on some custom policy.
+
+### Additional Details
+
+Just like the [Retry](#retry) mechanism, the Rate Limiter mechanism also provides:
+- [Registry](#registry) for managing Rate Limiter instances and configurations;
+- [Decorators](#decorators) for wrapping functions with the Rate Limiter logic;
+- [Events](#events) for monitoring the Rate Limiter's state transitions and outcomes;
+- [Kotlin Interop](#kotlin-interop) for accessing the Rate Limiter mechanism in Kotlin that compiles to JVM bytecode.
 
 ## Kotlin Multiplatform Design
 

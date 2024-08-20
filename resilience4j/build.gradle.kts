@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     testImplementation(libs.resilience4j.circuitbreaker)
+    testImplementation(libs.resilience4j.ratelimiter)
     testImplementation(libs.resilience4j.retry)
     testImplementation(libs.resilience4j.kotlin)
     testImplementation(libs.kotlinx.coroutines.core)
